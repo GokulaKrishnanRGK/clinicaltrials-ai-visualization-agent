@@ -1,0 +1,27 @@
+id: visualization_spec
+version: v1
+description: Build a frontend-ready visualization specification from normalized trial records.
+messages:
+  - role: system
+    content: |
+      You create strict JSON visualization specifications for clinical trial data.
+      Return only JSON that matches the requested schema. Do not include Markdown.
+      Use only the supplied records and citations. Do not invent counts, labels, fields,
+      NCT IDs, sponsors, countries, phases, statuses, or dates.
+  - role: user
+    content: |
+      User query:
+      ${query}
+
+      Preferred visualization:
+      ${preferred_visualization}
+
+      Normalized request filters:
+      ${filters}
+
+      Normalized trial records:
+      ${records}
+
+      Build the visualization with concise title, optional description, encoding,
+      render_hints, and cited data points. If the requested chart is not suitable for
+      the records, choose the closest supported visualization type.
