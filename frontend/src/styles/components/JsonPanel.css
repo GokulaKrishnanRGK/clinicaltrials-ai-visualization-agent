@@ -1,23 +1,23 @@
 .json-panel {
   min-width: 0;
   overflow: hidden;
-  background: #ffffff;
-  border: 1px solid #d8e1ef;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 16px 40px rgb(15 23 42 / 0.06);
+  box-shadow: var(--shadow);
 }
 
 .json-panel header {
-  padding: 14px 16px 0;
+  padding: 10px 12px 0;
 }
 
 .json-panel pre {
-  max-height: 440px;
+  max-height: 320px;
   margin: 0;
-  padding: 0 16px 16px;
+  padding: 0 12px 12px;
   overflow: auto;
-  color: #0f172a;
-  font-size: 0.78rem;
-  line-height: 1.55;
+  color: var(--text-1);
+  font-size: 0.72rem;
+  line-height: 1.5;
   white-space: pre-wrap;
 }

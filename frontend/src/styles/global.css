@@ -1,6 +1,25 @@
 :root {
-  color: #172033;
-  background: #f4f7fb;
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-2: #1e2430;
+  --border: #2d3748;
+  --border-subtle: #1e2a3a;
+  --text-1: #e2e8f0;
+  --text-2: #94a3b8;
+  --text-3: #64748b;
+  --accent: #3b82f6;
+  --accent-dim: rgba(59, 130, 246, 0.12);
+  --accent-border: rgba(59, 130, 246, 0.3);
+  --accent-text: #60a5fa;
+  --pill-bg: #1e2a3a;
+  --pill-border: #2d4a6e;
+  --pill-text: #93c5fd;
+  --shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+  --code-bg: #1e2430;
+
+  color: var(--text-1);
+  background: var(--bg);
+  color-scheme: dark;
   font-family:
     Inter,
     ui-sans-serif,
@@ -9,8 +28,30 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
+  font-size: 14px;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+:root[data-theme="light"] {
+  --bg: #f4f7fb;
+  --surface: #ffffff;
+  --surface-2: #fbfdff;
+  --border: #d8e1ef;
+  --border-subtle: #e8eef8;
+  --text-1: #0f172a;
+  --text-2: #475569;
+  --text-3: #94a3b8;
+  --accent: #0f766e;
+  --accent-dim: #e6f4f1;
+  --accent-border: #cbd9ec;
+  --accent-text: #0f766e;
+  --pill-bg: #e7eef8;
+  --pill-border: #cbd9ec;
+  --pill-text: #0f172a;
+  --shadow: 0 8px 24px rgb(15 23 42 / 0.06);
+  --code-bg: #eef2f7;
+  color-scheme: light;
 }
 
 * {
@@ -19,6 +60,7 @@
 
 body {
   margin: 0;
+  background: var(--bg);
 }
 
 button,
@@ -37,73 +79,77 @@ p {
 
 h1 {
   margin-bottom: 0;
-  color: #0f172a;
-  font-size: 2rem;
-  line-height: 1.15;
+  color: var(--text-1);
+  font-size: 1.35rem;
+  line-height: 1.2;
 }
 
 h2 {
-  margin-bottom: 10px;
-  color: #111827;
-  font-size: 1.05rem;
+  margin-bottom: 6px;
+  color: var(--text-1);
+  font-size: 0.92rem;
   line-height: 1.25;
 }
 
 h3 {
-  margin-bottom: 8px;
-  color: #334155;
-  font-size: 0.82rem;
+  margin-bottom: 6px;
+  color: var(--text-3);
+  font-size: 0.72rem;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 p,
 li,
 dd {
-  color: #475569;
-  line-height: 1.55;
+  color: var(--text-2);
+  font-size: 0.88rem;
+  line-height: 1.5;
 }
 
 label,
 legend,
 dt {
-  color: #1e293b;
-  font-size: 0.86rem;
-  font-weight: 800;
+  color: var(--text-1);
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 textarea,
 select {
   width: 100%;
-  color: #172033;
-  background: #fbfdff;
-  border: 1px solid #c9d5e5;
+  color: var(--text-1);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
   border-radius: 6px;
 }
 
 textarea {
-  min-height: 112px;
+  min-height: 80px;
   resize: vertical;
-  padding: 12px;
+  padding: 8px 10px;
+  font-size: 0.88rem;
 }
 
 select {
-  min-height: 42px;
-  padding: 8px 10px;
+  min-height: 36px;
+  padding: 6px 8px;
+  font-size: 0.88rem;
 }
 
 code {
   width: fit-content;
   max-width: 100%;
-  padding: 3px 6px;
+  padding: 2px 5px;
   overflow-wrap: anywhere;
-  color: #0f172a;
-  background: #eef2f7;
+  color: var(--text-1);
+  background: var(--code-bg);
   border-radius: 4px;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
 }
 
 dt {
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 dd {
@@ -112,10 +158,10 @@ dd {
 }
 
 .eyebrow {
-  margin: 0 0 7px;
-  color: #0f766e;
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0;
+  margin: 0 0 4px;
+  color: var(--accent-text);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }

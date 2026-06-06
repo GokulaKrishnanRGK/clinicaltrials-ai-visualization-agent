@@ -1,16 +1,20 @@
-import type { Example, VisualizationRequest } from "../types";
+import type { VisualizationRequest } from "../types";
 import "../styles/components/ControlsPanel.css";
 
+type ExampleOption = { id: string; label: string };
+
 type ControlsPanelProps = {
-  examples: Example[];
+  examples: ExampleOption[];
   selectedId: string;
   query: string;
   dataMode: VisualizationRequest["data_mode"];
   citationLimit: number;
+  isSubmitting: boolean;
   onExampleChange: (exampleId: string) => void;
   onQueryChange: (query: string) => void;
   onDataModeChange: (dataMode: VisualizationRequest["data_mode"]) => void;
   onCitationLimitChange: (citationLimit: number) => void;
+  onSubmit: () => void;
 };
 
 export function ControlsPanel({
@@ -19,10 +23,12 @@ export function ControlsPanel({
   query,
   dataMode,
   citationLimit,
+  isSubmitting,
   onExampleChange,
   onQueryChange,
   onDataModeChange,
   onCitationLimitChange,
+  onSubmit,
 }: ControlsPanelProps) {
   return (
     <section className="controls-panel" aria-label="Visualization request controls">
@@ -86,6 +92,10 @@ export function ControlsPanel({
           />
           <output htmlFor="citation-limit">{citationLimit}</output>
         </div>
+
+        <button className="submit-btn" onClick={onSubmit} disabled={isSubmitting}>
+          {isSubmitting ? "Loading…" : "Submit"}
+        </button>
       </div>
     </section>
   );

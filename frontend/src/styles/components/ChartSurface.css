@@ -1,19 +1,18 @@
 .chart-panel,
 .chart-empty {
-  min-height: 560px;
-  padding: 18px;
-  background: #ffffff;
-  border: 1px solid #d8e1ef;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 16px 40px rgb(15 23 42 / 0.06);
+  box-shadow: var(--shadow);
 }
 
 .chart-header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 16px;
+  gap: 10px;
   align-items: start;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .chart-header p {
@@ -23,22 +22,23 @@
 .status-pill {
   display: inline-flex;
   align-items: center;
-  min-height: 32px;
-  padding: 6px 10px;
-  color: #0f172a;
-  background: #e7eef8;
-  border: 1px solid #cbd9ec;
-  border-radius: 6px;
-  font-size: 0.84rem;
+  height: 24px;
+  padding: 0 8px;
+  color: var(--pill-text);
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  border-radius: 5px;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
 .chart {
   width: 100%;
-  height: 360px;
+  height: 300px;
 }
 
 .chart-empty {
+  min-height: 200px;
   display: grid;
   align-content: center;
   justify-items: center;
@@ -46,33 +46,23 @@
 }
 
 .chart-empty p {
-  max-width: 520px;
+  max-width: 480px;
 }
 
 .citation-list {
-  padding-top: 12px;
-  border-top: 1px solid #e2e8f0;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
 }
 
 .citation-list ul {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   margin: 0;
-  padding-left: 18px;
+  padding-left: 16px;
 }
 
 .citation-list li {
   display: grid;
-  gap: 3px;
-}
-
-@media (max-width: 560px) {
-  .chart-panel,
-  .chart-empty {
-    padding: 14px;
-  }
-
-  .chart {
-    height: 320px;
-  }
+  gap: 2px;
 }
