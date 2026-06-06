@@ -1,15 +1,17 @@
 """Typed in-process ClinicalTrials.gov tool boundary."""
 
 from datetime import UTC, datetime
-from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.logging_config import get_logger
 from app.schemas.clinical_trials import NormalizedTrialRecord
 from app.schemas.requests import VisualizationRequest
 from app.schemas.responses import ResponseMetadata
 from app.services.clinical_trials.client import ClinicalTrialsApiError, ClinicalTrialsGovClient
 from app.services.clinical_trials.normalizer import normalize_study
+
+logger = get_logger(__name__)
 
 
 class ClinicalTrialsToolError(RuntimeError):
@@ -19,7 +21,6 @@ class ClinicalTrialsToolError(RuntimeError):
 class ClinicalTrialsToolResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    data_mode: Literal["cache", "live"]
     filters: dict[str, str | int] = Field(default_factory=dict)
     records_retrieved: int = Field(..., ge=0)
     records: list[NormalizedTrialRecord] = Field(default_factory=list)
@@ -31,7 +32,6 @@ class ClinicalTrialsToolResult(BaseModel):
 
     def to_response_metadata(self) -> ResponseMetadata:
         return ResponseMetadata(
-            data_mode=self.data_mode,
             filters=self.filters,
             records_retrieved=self.records_retrieved,
             records_used=self.records_used,
@@ -47,19 +47,12 @@ class ClinicalTrialsToolInvoker:
 
     async def invoke(self, request: VisualizationRequest) -> ClinicalTrialsToolResult:
         filters = self._filters_from_request(request)
-        if request.data_mode == "cache":
-            return ClinicalTrialsToolResult(
-                data_mode=request.data_mode,
-                filters=filters,
-                records_retrieved=0,
-                records=[],
-                warnings=["Cache mode is not implemented in the ClinicalTrials.gov tool boundary."],
-            )
-
         params = self._params_from_filters(filters, request.max_records)
+        logger.debug("ct_api_request params=%s", params)
         try:
             payload = await self.client.search_studies(params)
         except ClinicalTrialsApiError as exc:
+            logger.warning("ct_api_error error=%s", exc)
             raise ClinicalTrialsToolError(str(exc)) from exc
 
         studies = payload.get("studies", [])
@@ -74,15 +67,18 @@ class ClinicalTrialsToolInvoker:
             if record is not None
         ]
         warnings = []
-        if len(records) < len(studies):
+        skipped = len(studies) - len(records)
+        if skipped > 0:
+            logger.warning("ct_normalization_skipped count=%d total=%d", skipped, len(studies))
             warnings.append("Some ClinicalTrials.gov studies were skipped during normalization.")
         if payload.get("nextPageToken"):
+            logger.info("ct_api_truncated max_records=%d more_available=true", request.max_records)
             warnings.append(
                 "Additional ClinicalTrials.gov records are available beyond max_records."
             )
 
+        logger.info("ct_api_complete studies_returned=%d records_normalized=%d", len(studies), len(records))
         return ClinicalTrialsToolResult(
-            data_mode=request.data_mode,
             filters=filters,
             records_retrieved=len(studies),
             records=records,

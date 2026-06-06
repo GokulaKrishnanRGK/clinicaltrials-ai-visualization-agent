@@ -5,9 +5,11 @@ from typing import Any
 from pydantic import TypeAdapter
 
 from app.graph.state import GraphState
+from app.logging_config import get_logger
 from app.schemas.clinical_trials import NormalizedTrialRecord
 from app.services import aggregation as agg
 
+logger = get_logger(__name__)
 _RecordAdapter = TypeAdapter(list[NormalizedTrialRecord])
 
 
@@ -43,9 +45,14 @@ def _choose_agg_type(state: GraphState) -> str:
 
 
 def aggregate_data(state: GraphState) -> dict[str, Any]:
+    rid = state["request_id"]
     records = _RecordAdapter.validate_python(state.get("records", []))
     agg_type = _choose_agg_type(state)
     limit = state["citation_limit"]
+    logger.debug(
+        "aggregate_data request_id=%s agg_type=%s record_count=%d citation_limit=%d",
+        rid, agg_type, len(records), limit,
+    )
 
     if agg_type == "by_year":
         from_year = state.get("start_year") or (state.get("interpreted") or {}).get("start_year")
@@ -65,4 +72,5 @@ def aggregate_data(state: GraphState) -> dict[str, Any]:
     else:
         data = agg.build_drug_sponsor_network(records, citation_limit=limit)
 
+    logger.info("aggregate_data complete request_id=%s agg_type=%s rows=%d", rid, agg_type, len(data) if isinstance(data, list) else 1)
     return {"agg_type": agg_type, "agg_data": data}

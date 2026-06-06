@@ -18,7 +18,6 @@ def build_meta(state: GraphState, *, records_retrieved: int, records_used: int) 
         if val is not None:
             filters[key] = val
     return ResponseMetadata(
-        data_mode=state["data_mode"],
         filters=filters,
         records_retrieved=records_retrieved,
         records_used=records_used,

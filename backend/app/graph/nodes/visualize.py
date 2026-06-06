@@ -4,6 +4,9 @@ from typing import Any
 
 from app.graph.nodes._helpers import build_meta
 from app.graph.state import GraphState
+from app.logging_config import get_logger
+
+logger = get_logger(__name__)
 from app.schemas.enums import VisualizationType
 from app.schemas.responses import VisualizationSuccessResponse
 from app.schemas.visualization import (
@@ -112,9 +115,11 @@ _NETWORK_ENCODING: dict[str, str] = {
 
 
 def generate_visualization_spec(state: GraphState) -> dict[str, Any]:
+    rid = state["request_id"]
     agg_type = state["agg_type"]
     agg_data = state["agg_data"]
     title = _CHART_TITLES.get(agg_type, state["query"][:80])
+    logger.debug("generate_visualization_spec request_id=%s agg_type=%s title=%r", rid, agg_type, title)
 
     if agg_type in ("drug_sponsor_network", "drug_cooccurrence_network"):
         spec = NetworkVisualizationSpec(
@@ -154,5 +159,11 @@ def generate_visualization_spec(state: GraphState) -> dict[str, Any]:
         meta=meta,
         warnings=list(state.get("warnings", [])) + list(state.get("tool_warnings", [])),
         assumptions=state.get("assumptions", []),
+    )
+    logger.info(
+        "generate_visualization_spec complete request_id=%s viz_type=%s records_used=%d",
+        rid,
+        spec.type.value,
+        len(records),
     )
     return {"final_response": response.model_dump(mode="json")}

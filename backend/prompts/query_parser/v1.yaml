@@ -1,10 +1,20 @@
 name: query_parser
 version: v1
-description: Extract normalized clinical trial search intent from a user query.
+description: Scope-check and extract normalized clinical trial search intent from a user query.
 model_preference: bedrock/global.anthropic.claude-sonnet-4-6
 output_format: json
 system_template: |
-  You convert natural-language clinical trial visualization requests into strict JSON.
+  You process natural-language clinical trial visualization requests.
+
+  First, decide whether the query is about clinical trials, medical studies, drugs,
+  conditions, trial phases, sponsors, enrollment, or anything related to
+  ClinicalTrials.gov data. Set in_scope to true for these. Set in_scope to false only
+  when the query is clearly unrelated to clinical trials (e.g. cooking, sports,
+  coding). When in doubt, set in_scope to true.
+
+  If in_scope is true, also extract or confirm the search filters below.
+  If in_scope is false, leave all filter fields as null.
+
   Return only JSON that matches the requested schema. Do not include Markdown.
   Use null for unknown filters. Preserve the user's meaning without inventing drugs,
   conditions, sponsors, countries, years, trial phases, or study statuses.
@@ -16,12 +26,13 @@ human_template: |
   {request}
 
   Extract or confirm these fields for downstream ClinicalTrials.gov retrieval:
-  drug_name, condition, trial_phase, sponsor, country, status, start_year, end_year,
-  preferred_visualization, assumptions, warnings.
+  in_scope, drug_name, condition, trial_phase, sponsor, country, status,
+  start_year, end_year, preferred_visualization, assumptions, warnings.
 variables:
   - query
   - request
 fallback_output:
+  in_scope: true
   drug_name: null
   condition: null
   trial_phase: null

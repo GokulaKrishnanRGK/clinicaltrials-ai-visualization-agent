@@ -6,15 +6,24 @@ from pydantic import TypeAdapter, ValidationError
 
 from app.graph.nodes._helpers import build_meta
 from app.graph.state import GraphState
+from app.logging_config import get_logger
 from app.schemas.responses import VisualizationApiResponse, VisualizationMessageResponse
-from app.services.cache.fixtures import get_cache_fixture_data_source
 
+logger = get_logger(__name__)
 _ResponseAdapter = TypeAdapter(VisualizationApiResponse)
+
+_SUGGESTED_QUERIES = [
+    "Show trials for semaglutide by phase",
+    "How many Alzheimer's trials are active in the US?",
+    "Top sponsors for oncology trials",
+]
 
 
 def validate_response(state: GraphState) -> dict[str, Any]:
+    rid = state["request_id"]
     raw = state.get("final_response")
     if not raw:
+        logger.warning("validate_response no response generated request_id=%s", rid)
         meta = build_meta(state, records_retrieved=0, records_used=0)
         msg = VisualizationMessageResponse(
             request_id=state["request_id"],
@@ -25,7 +34,8 @@ def validate_response(state: GraphState) -> dict[str, Any]:
         return {"final_response": msg.model_dump(mode="json")}
     try:
         _ResponseAdapter.validate_python(raw)
-    except ValidationError:
+    except ValidationError as exc:
+        logger.warning("validate_response schema_failure request_id=%s error=%s", rid, exc)
         meta = build_meta(state, records_retrieved=0, records_used=0)
         msg = VisualizationMessageResponse(
             request_id=state["request_id"],
@@ -34,17 +44,21 @@ def validate_response(state: GraphState) -> dict[str, Any]:
             meta=meta,
         )
         return {"final_response": msg.model_dump(mode="json")}
+    logger.debug("validate_response ok request_id=%s", rid)
     return {}
 
 
 def message_insufficient(state: GraphState) -> dict[str, Any]:
+    rid = state["request_id"]
+    logger.info(
+        "message_insufficient request_id=%s records_retrieved=%d",
+        rid, state.get("records_retrieved", 0),
+    )
     meta = build_meta(
         state,
         records_retrieved=state.get("records_retrieved", 0),
         records_used=0,
     )
-    ds = get_cache_fixture_data_source()
-    suggested = [f["query"] for f in ds._manifest.get("fixtures", [])[:3]]
     msg = VisualizationMessageResponse(
         request_id=state["request_id"],
         message=(
@@ -52,7 +66,7 @@ def message_insufficient(state: GraphState) -> dict[str, Any]:
             "Try a more specific condition, drug, or sponsor."
         ),
         reason="insufficient_data",
-        suggested_queries=suggested,
+        suggested_queries=_SUGGESTED_QUERIES,
         meta=meta,
     )
     return {"final_response": msg.model_dump(mode="json")}

@@ -1,0 +1,826 @@
+openapi: "3.1.0"
+
+info:
+  title: Clinical Trials Query-to-Visualization API
+  version: "1.0.0"
+  description: |
+    Converts natural-language questions about clinical trials into interactive
+    visualizations backed by ClinicalTrials.gov data.
+
+    ## Data modes
+    - **cache** — returns pre-computed fixture data instantly (default).
+    - **live** — queries ClinicalTrials.gov in real time and runs the LLM pipeline.
+
+    ## Streaming
+    `POST /visualizations/stream` emits Server-Sent Events while the pipeline runs,
+    so the UI can show per-node progress before the final response arrives.
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+tags:
+  - name: health
+    description: Service liveness check
+  - name: examples
+    description: Pre-built example requests for the dashboard picker
+  - name: visualizations
+    description: Query-to-visualization pipeline (sync and streaming)
+
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      tags: [health]
+      summary: Service liveness check
+      responses:
+        "200":
+          description: Service is running
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, service, default_data_mode]
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: Clinical Trials Query-to-Visualization API
+                  default_data_mode:
+                    type: string
+                    enum: [cache, live]
+                    example: cache
+
+  /examples:
+    get:
+      operationId: getExamples
+      tags: [examples]
+      summary: List pre-built example requests
+      description: |
+        Returns a short list of curated example requests that the dashboard
+        picker uses. Each example includes a label and a fully-populated
+        `VisualizationRequest` body ready to submit.
+      responses:
+        "200":
+          description: List of examples
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExampleSummary"
+
+  /visualizations:
+    post:
+      operationId: createVisualization
+      tags: [visualizations]
+      summary: Run the pipeline and return a visualization (synchronous)
+      description: |
+        Runs the full query-to-visualization pipeline and waits for the result.
+        Use `/visualizations/stream` if you want per-node progress events.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisualizationRequest"
+            examples:
+              bar_chart:
+                summary: Country bar chart (cache)
+                value:
+                  query: Which countries have the most recruiting Alzheimer's trials?
+                  condition: Alzheimer Disease
+                  status: recruiting
+                  preferred_visualization: bar_chart
+                  data_mode: cache
+                  max_records: 500
+                  citation_limit: 5
+              network_graph:
+                summary: Sponsor-condition network (cache)
+                value:
+                  query: Map sponsors connected to immunotherapy conditions.
+                  condition: Immunotherapy
+                  preferred_visualization: network_graph
+                  data_mode: cache
+                  max_records: 500
+                  citation_limit: 3
+      responses:
+        "200":
+          description: |
+            Visualization result or explanatory message.
+            Discriminated by `status`: `"visualization"` or `"message"`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisualizationApiResponse"
+        "422":
+          description: Request validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+
+  /visualizations/stream:
+    post:
+      operationId: streamVisualization
+      tags: [visualizations]
+      summary: Run the pipeline and stream progress events (SSE)
+      description: |
+        Runs the same pipeline as `POST /visualizations` but responds with an
+        `text/event-stream` (Server-Sent Events) body.
+
+        Each event is a single line in the form `data: <json>\n\n`.
+        Events arrive in pipeline order:
+
+        | `type` | When |
+        |---|---|
+        | `node_start` | A pipeline node begins execution |
+        | `node_success` | A node finishes successfully |
+        | `node_error` | A node raised an exception |
+        | `node_retry` | A node is being retried (repair loop) |
+        | `final_response` | Pipeline complete; contains the full response object |
+
+        The stream ends after the `final_response` event. Clients should close
+        the connection at that point.
+
+        Tracked nodes (in order): `scope_check`, `cache_lookup`,
+        `interpret_question`, `create_retrieval_plan`, `execute_tools`,
+        `assess_data_sufficiency`, `repair_plan`, `aggregate_data`,
+        `generate_visualization_spec`, `validate_response`, `message_insufficient`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisualizationRequest"
+      responses:
+        "200":
+          description: Server-Sent Events stream
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                example: no-cache
+            X-Accel-Buffering:
+              schema:
+                type: string
+                example: "no"
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: |
+                  Newline-delimited SSE frames. Each frame is one of the event
+                  schemas below.
+              examples:
+                node_start:
+                  summary: Node started
+                  value: "data: {\"type\": \"node_start\", \"node\": \"interpret_question\"}\n\n"
+                node_success:
+                  summary: Node succeeded
+                  value: "data: {\"type\": \"node_success\", \"node\": \"interpret_question\", \"duration_ms\": 412}\n\n"
+                node_retry:
+                  summary: Node retrying (repair loop)
+                  value: "data: {\"type\": \"node_retry\", \"node\": \"execute_tools\", \"attempt\": 2}\n\n"
+                node_error:
+                  summary: Node errored
+                  value: "data: {\"type\": \"node_error\", \"node\": \"interpret_question\", \"error\": \"LLM timeout\"}\n\n"
+                final_response:
+                  summary: Pipeline complete
+                  value: "data: {\"type\": \"final_response\", \"response\": {\"status\": \"visualization\", ...}}\n\n"
+        "422":
+          description: Request validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+
+components:
+  schemas:
+
+    # -------------------------------------------------------------------------
+    # Request
+    # -------------------------------------------------------------------------
+
+    VisualizationRequest:
+      type: object
+      required: [query]
+      additionalProperties: false
+      properties:
+        query:
+          type: string
+          minLength: 3
+          description: Natural-language clinical trial question.
+          example: How many Pembrolizumab trials started each year since 2015?
+        drug_name:
+          type: string
+          nullable: true
+          description: Filter by drug or intervention name.
+          example: Pembrolizumab
+        condition:
+          type: string
+          nullable: true
+          description: Filter by medical condition or disease.
+          example: Alzheimer Disease
+        trial_phase:
+          type: string
+          nullable: true
+          enum:
+            - not_applicable
+            - early_phase_1
+            - phase_1
+            - phase_2
+            - phase_3
+            - phase_4
+          description: |
+            Trial phase filter. Common aliases are accepted and normalized
+            (e.g. `"phase_i"` → `"PHASE1"`, `"phase_iii"` → `"PHASE3"`).
+        sponsor:
+          type: string
+          nullable: true
+          description: Filter by lead sponsor name.
+          example: Pfizer
+        country:
+          type: string
+          nullable: true
+          description: |
+            Filter by country. Common aliases are accepted
+            (e.g. `"US"`, `"usa"`, `"united_states"` all resolve to `"United States"`).
+          example: United States
+        status:
+          type: string
+          nullable: true
+          enum:
+            - active_not_recruiting
+            - approved_for_marketing
+            - available
+            - completed
+            - enrolling_by_invitation
+            - no_longer_available
+            - not_yet_recruiting
+            - recruiting
+            - suspended
+            - temporarily_not_available
+            - terminated
+            - unknown
+            - withdrawn
+            - withheld
+          description: |
+            Study status filter. Common aliases are accepted
+            (e.g. `"recruiting"`, `"completed"`).
+        start_year:
+          type: integer
+          nullable: true
+          minimum: 1900
+          maximum: 2100
+          description: Filter trials that started on or after this year.
+          example: 2015
+        end_year:
+          type: integer
+          nullable: true
+          minimum: 1900
+          maximum: 2100
+          description: Filter trials that started on or before this year.
+          example: 2024
+        max_records:
+          type: integer
+          default: 500
+          minimum: 1
+          maximum: 1000
+          description: Maximum number of trial records to retrieve.
+        preferred_visualization:
+          type: string
+          nullable: true
+          enum:
+            - bar
+            - bar_chart
+            - bar_graph
+            - grouped_bar
+            - grouped_bar_chart
+            - line
+            - line_chart
+            - trend
+            - time_series
+            - timeseries
+            - network
+            - network_graph
+          description: |
+            Preferred chart type hint. The pipeline may choose a different type
+            if the data does not support the requested visualization.
+        data_mode:
+          type: string
+          enum: [cache, live]
+          default: cache
+          description: |
+            `cache` returns pre-computed fixture data instantly.
+            `live` queries ClinicalTrials.gov and runs the full LLM pipeline.
+        citation_limit:
+          type: integer
+          default: 10
+          minimum: 0
+          maximum: 25
+          description: |
+            Maximum number of source citations attached per data point, node,
+            or edge. `0` disables citations entirely.
+
+    # -------------------------------------------------------------------------
+    # Responses
+    # -------------------------------------------------------------------------
+
+    VisualizationApiResponse:
+      description: |
+        Discriminated union on `status`.
+        - `"visualization"` — a chart or network graph was produced.
+        - `"message"` — the pipeline could not produce a visualization and
+          explains why.
+      oneOf:
+        - $ref: "#/components/schemas/VisualizationSuccessResponse"
+        - $ref: "#/components/schemas/VisualizationMessageResponse"
+      discriminator:
+        propertyName: status
+        mapping:
+          visualization: "#/components/schemas/VisualizationSuccessResponse"
+          message: "#/components/schemas/VisualizationMessageResponse"
+
+    VisualizationSuccessResponse:
+      type: object
+      required: [status, request_id, visualization, meta]
+      properties:
+        status:
+          type: string
+          enum: [visualization]
+        request_id:
+          type: string
+          description: UUID assigned to this pipeline run.
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        visualization:
+          $ref: "#/components/schemas/VisualizationSpec"
+        meta:
+          $ref: "#/components/schemas/ResponseMetadata"
+        warnings:
+          type: array
+          items:
+            type: string
+          description: Non-fatal warnings from the pipeline or data retrieval.
+          default: []
+        assumptions:
+          type: array
+          items:
+            type: string
+          description: Assumptions the LLM made when interpreting the query.
+          default: []
+
+    VisualizationMessageResponse:
+      type: object
+      required: [status, request_id, message, reason]
+      properties:
+        status:
+          type: string
+          enum: [message]
+        request_id:
+          type: string
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        message:
+          type: string
+          description: Human-readable explanation of why no visualization was produced.
+          example: This application only answers questions about clinical trials.
+        reason:
+          type: string
+          enum:
+            - vague_query
+            - unsupported_query
+            - cache_miss
+            - llm_failure
+            - api_failure
+            - insufficient_data
+            - validation_failure
+          description: |
+            Machine-readable reason code.
+            - `vague_query` — query lacks enough specifics to retrieve useful data.
+            - `unsupported_query` — query is out of scope for clinical trial data.
+            - `cache_miss` — no cached fixture matches the query in cache mode.
+            - `llm_failure` — the LLM call failed or returned invalid output.
+            - `api_failure` — ClinicalTrials.gov API call failed.
+            - `insufficient_data` — records were retrieved but too few to visualize.
+            - `validation_failure` — the pipeline produced a response that failed schema validation.
+        suggested_queries:
+          type: array
+          items:
+            type: string
+          description: Alternative queries the user could try.
+          default: []
+          example:
+            - Show trials for semaglutide by phase
+            - How many Alzheimer's trials are active in the US?
+        meta:
+          $ref: "#/components/schemas/ResponseMetadata"
+          nullable: true
+
+    ResponseMetadata:
+      type: object
+      required: [source, data_mode, filters, records_retrieved, records_used, generated_at]
+      properties:
+        source:
+          type: string
+          enum: [clinicaltrials.gov]
+        data_mode:
+          type: string
+          enum: [cache, live]
+        filters:
+          type: object
+          additionalProperties: true
+          description: The effective filters applied during retrieval, including the query.
+          example:
+            query: Pembrolizumab trials by year
+            drug_name: Pembrolizumab
+            start_year: 2015
+        records_retrieved:
+          type: integer
+          minimum: 0
+          description: Number of trial records fetched from the data source.
+        records_used:
+          type: integer
+          minimum: 0
+          description: Number of records that contributed to the visualization.
+        generated_at:
+          type: string
+          format: date-time
+          description: UTC timestamp when the response was generated.
+
+    # -------------------------------------------------------------------------
+    # Visualization specs
+    # -------------------------------------------------------------------------
+
+    VisualizationSpec:
+      description: |
+        Discriminated union on `type`.
+        Chart types (`bar_chart`, `grouped_bar_chart`, `line_chart`, `time_series`)
+        use `ChartVisualizationSpec`. `network_graph` uses `NetworkVisualizationSpec`.
+      oneOf:
+        - $ref: "#/components/schemas/ChartVisualizationSpec"
+        - $ref: "#/components/schemas/NetworkVisualizationSpec"
+      discriminator:
+        propertyName: type
+        mapping:
+          bar_chart: "#/components/schemas/ChartVisualizationSpec"
+          grouped_bar_chart: "#/components/schemas/ChartVisualizationSpec"
+          line_chart: "#/components/schemas/ChartVisualizationSpec"
+          time_series: "#/components/schemas/ChartVisualizationSpec"
+          network_graph: "#/components/schemas/NetworkVisualizationSpec"
+
+    ChartVisualizationSpec:
+      type: object
+      required: [type, title, encoding, data]
+      properties:
+        type:
+          type: string
+          enum: [bar_chart, grouped_bar_chart, line_chart, time_series]
+        title:
+          type: string
+          example: Trials by Start Year
+        description:
+          type: string
+          nullable: true
+        encoding:
+          type: object
+          additionalProperties:
+            type: string
+          description: |
+            Maps axis/channel names to data field names.
+            Example: `{"x": "start_year", "y": "trial_count"}`.
+        render_hints:
+          $ref: "#/components/schemas/EChartsRenderHints"
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChartDatum"
+
+    NetworkVisualizationSpec:
+      type: object
+      required: [type, title, encoding, data]
+      properties:
+        type:
+          type: string
+          enum: [network_graph]
+        title:
+          type: string
+          example: Drug–Sponsor Network
+        description:
+          type: string
+          nullable: true
+        encoding:
+          type: object
+          additionalProperties:
+            type: string
+          description: |
+            Maps semantic roles to data field names.
+            Example: `{"node_id": "id", "node_label": "label", "edge_source": "source"}`.
+        render_hints:
+          $ref: "#/components/schemas/EChartsRenderHints"
+          nullable: true
+        data:
+          $ref: "#/components/schemas/NetworkGraphData"
+
+    EChartsRenderHints:
+      type: object
+      description: Frontend hints for mapping data fields to ECharts configuration.
+      properties:
+        x_axis_label:
+          type: string
+          nullable: true
+        y_axis_label:
+          type: string
+          nullable: true
+        series_name:
+          type: string
+          nullable: true
+        group_field:
+          type: string
+          nullable: true
+          description: Field used to group series in a grouped bar chart.
+        category_field:
+          type: string
+          nullable: true
+          description: Data field for the category axis.
+        value_field:
+          type: string
+          nullable: true
+          description: Data field for the value axis.
+        tooltip_fields:
+          type: array
+          items:
+            type: string
+          default: []
+          description: Fields to include in ECharts tooltips.
+        sort:
+          type: string
+          nullable: true
+          description: Sort hint for the frontend (`asc`, `desc`, or `chronological`).
+        legend:
+          type: boolean
+          default: true
+
+    ChartDatum:
+      type: object
+      description: |
+        A single data point for a chart series. Includes dynamic fields
+        (e.g. `start_year`, `trial_count`) plus an optional citations list.
+      additionalProperties: true
+      properties:
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/SourceCitation"
+          default: []
+
+    NetworkGraphData:
+      type: object
+      required: [nodes, edges]
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: "#/components/schemas/NetworkNode"
+        edges:
+          type: array
+          items:
+            $ref: "#/components/schemas/NetworkEdge"
+
+    NetworkNode:
+      type: object
+      required: [id, label, type]
+      properties:
+        id:
+          type: string
+          minLength: 1
+        label:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          enum: [drug, sponsor, condition, trial, site, country]
+        value:
+          type: number
+          nullable: true
+          description: Optional numeric size/weight for the node.
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/SourceCitation"
+          default: []
+
+    NetworkEdge:
+      type: object
+      required: [source, target, weight, relation]
+      properties:
+        source:
+          type: string
+          minLength: 1
+        target:
+          type: string
+          minLength: 1
+        weight:
+          type: number
+          minimum: 0
+          description: Edge strength (e.g. co-occurrence count).
+        relation:
+          type: string
+          enum: [sponsors, co_occurs_with, studies]
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/SourceCitation"
+          default: []
+
+    SourceCitation:
+      type: object
+      required: [nct_id, field, value]
+      description: A reference to a specific field value in a ClinicalTrials.gov record.
+      properties:
+        nct_id:
+          type: string
+          minLength: 1
+          description: ClinicalTrials.gov trial identifier.
+          example: NCT04368780
+        field:
+          type: string
+          minLength: 1
+          description: Dot-notation path to the field in the ClinicalTrials.gov JSON response.
+          example: protocolSection.statusModule.startDateStruct.date
+        value:
+          description: The raw field value from the source record.
+          oneOf:
+            - type: string
+            - type: number
+        excerpt:
+          type: string
+          nullable: true
+          description: Optional human-readable excerpt from the source record.
+        brief_title:
+          type: string
+          nullable: true
+          description: Brief title of the trial for display purposes.
+
+    # -------------------------------------------------------------------------
+    # Examples
+    # -------------------------------------------------------------------------
+
+    ExampleSummary:
+      type: object
+      required: [id, label, request]
+      properties:
+        id:
+          type: string
+          example: bar
+        label:
+          type: string
+          example: Recruiting trials by country
+        request:
+          $ref: "#/components/schemas/ExampleRequest"
+
+    ExampleRequest:
+      type: object
+      required: [query]
+      description: A pre-populated request body for use as a dashboard example.
+      properties:
+        query:
+          type: string
+        drug_name:
+          type: string
+          nullable: true
+        condition:
+          type: string
+          nullable: true
+        trial_phase:
+          type: string
+          nullable: true
+        sponsor:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        start_year:
+          type: integer
+          nullable: true
+        end_year:
+          type: integer
+          nullable: true
+        preferred_visualization:
+          type: string
+          nullable: true
+        data_mode:
+          type: string
+          enum: [cache, live]
+          default: cache
+        max_records:
+          type: integer
+          default: 500
+        citation_limit:
+          type: integer
+          default: 10
+
+    # -------------------------------------------------------------------------
+    # SSE event shapes (informational — not enforced by the stream response)
+    # -------------------------------------------------------------------------
+
+    SseNodeStartEvent:
+      type: object
+      required: [type, node]
+      properties:
+        type:
+          type: string
+          enum: [node_start]
+        node:
+          type: string
+          description: Name of the pipeline node that started.
+          example: interpret_question
+
+    SseNodeSuccessEvent:
+      type: object
+      required: [type, node, duration_ms]
+      properties:
+        type:
+          type: string
+          enum: [node_success]
+        node:
+          type: string
+          example: interpret_question
+        duration_ms:
+          type: integer
+          description: Wall-clock execution time for this node in milliseconds.
+          example: 412
+
+    SseNodeRetryEvent:
+      type: object
+      required: [type, node, attempt]
+      properties:
+        type:
+          type: string
+          enum: [node_retry]
+        node:
+          type: string
+          example: execute_tools
+        attempt:
+          type: integer
+          minimum: 2
+          description: Retry attempt number (always ≥ 2).
+          example: 2
+
+    SseNodeErrorEvent:
+      type: object
+      required: [type, node, error]
+      properties:
+        type:
+          type: string
+          enum: [node_error]
+        node:
+          type: string
+          example: interpret_question
+        error:
+          type: string
+          description: Error message from the failed node.
+          example: LLM timeout
+
+    SseFinalResponseEvent:
+      type: object
+      required: [type, response]
+      properties:
+        type:
+          type: string
+          enum: [final_response]
+        response:
+          $ref: "#/components/schemas/VisualizationApiResponse"
+
+    # -------------------------------------------------------------------------
+    # Errors
+    # -------------------------------------------------------------------------
+
+    ValidationError:
+      type: object
+      description: FastAPI/Pydantic request validation error (HTTP 422).
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                    - type: integer
+                description: Path to the invalid field.
+              msg:
+                type: string
+                description: Human-readable error message.
+              type:
+                type: string
+                description: Pydantic error type code.

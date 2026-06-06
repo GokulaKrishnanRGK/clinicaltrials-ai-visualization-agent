@@ -3,7 +3,6 @@ from langgraph.graph import END, START, StateGraph
 from app.graph.nodes import (
     aggregate_data,
     assess_data_sufficiency,
-    cache_lookup,
     create_retrieval_plan,
     execute_tools,
     generate_visualization_spec,
@@ -12,7 +11,6 @@ from app.graph.nodes import (
     repair_plan,
     route_after_assess,
     route_after_interpret,
-    route_by_mode,
     validate_response,
 )
 from app.graph.state import GraphState
@@ -21,7 +19,6 @@ from app.graph.state import GraphState
 def build_pipeline():
     graph = StateGraph(GraphState)
 
-    graph.add_node("cache_lookup", cache_lookup)
     graph.add_node("interpret_question", interpret_question)
     graph.add_node("create_retrieval_plan", create_retrieval_plan)
     graph.add_node("execute_tools", execute_tools)
@@ -32,13 +29,7 @@ def build_pipeline():
     graph.add_node("validate_response", validate_response)
     graph.add_node("message_insufficient", message_insufficient)
 
-    graph.add_conditional_edges(
-        START,
-        route_by_mode,
-        {"cache": "cache_lookup", "live": "interpret_question"},
-    )
-
-    graph.add_edge("cache_lookup", END)
+    graph.add_edge(START, "interpret_question")
 
     graph.add_conditional_edges(
         "interpret_question",

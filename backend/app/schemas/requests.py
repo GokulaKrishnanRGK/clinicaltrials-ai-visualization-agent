@@ -1,7 +1,5 @@
 """Request schemas for visualization endpoints."""
 
-from typing import Literal
-
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.schemas.enums import (
@@ -26,7 +24,6 @@ class VisualizationRequest(BaseModel):
     end_year: int | None = Field(default=None, ge=1900, le=2100)
     max_records: int = Field(default=500, ge=1, le=1000)
     preferred_visualization: NormalizedVisualizationType | None = None
-    data_mode: Literal["cache", "live"] = "cache"
     citation_limit: int = Field(default=10, ge=0, le=25)
 
     @model_validator(mode="after")

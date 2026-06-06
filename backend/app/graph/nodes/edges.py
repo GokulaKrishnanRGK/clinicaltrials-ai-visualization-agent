@@ -5,10 +5,6 @@ from app.graph.state import GraphState
 MAX_REPAIRS = 2
 
 
-def route_by_mode(state: GraphState) -> str:
-    return "cache" if state["data_mode"] == "cache" else "live"
-
-
 def route_after_interpret(state: GraphState) -> str:
     return "end" if state.get("final_response") else "continue"
 

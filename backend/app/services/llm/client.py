@@ -8,7 +8,10 @@ from typing import Any, TypeVar
 from litellm import acompletion
 from pydantic import TypeAdapter, ValidationError
 
+from app.logging_config import get_logger
 from app.services.llm.prompts import PromptRegistry
+
+logger = get_logger(__name__)
 
 ResponseModelT = TypeVar("ResponseModelT")
 CompletionFn = Callable[..., Awaitable[Any]]
@@ -46,22 +49,28 @@ class LLMClient:
         max_tokens: int | None = None,
     ) -> ResponseModelT:
         prompt = self.registry.render(prompt_id, variables, version=version)
+        resolved_model = model or prompt.model_preference or self.model
+        logger.debug("llm_call prompt=%s model=%s", prompt_id, resolved_model)
         response = await self.completion_fn(
-            model=model or prompt.model_preference or self.model,
+            model=resolved_model,
             messages=[message.model_dump() for message in prompt.messages],
             temperature=self.temperature if temperature is None else temperature,
             max_tokens=self.max_tokens if max_tokens is None else max_tokens,
             response_format={"type": "json_object"},
         )
         content = self._extract_content(response)
+        usage = getattr(getattr(response, "usage", None), "total_tokens", None)
+        logger.debug("llm_response prompt=%s tokens=%s content_len=%d", prompt_id, usage, len(content))
         try:
             payload = json.loads(content)
         except json.JSONDecodeError as exc:
+            logger.warning("llm_json_parse_error prompt=%s error=%s", prompt_id, exc)
             raise LLMClientError(f"LLM response was not valid JSON: {exc}") from exc
         try:
             return TypeAdapter(response_model).validate_python(payload)
         except ValidationError as exc:
             message = f"LLM response failed {self._response_model_name(response_model)} validation"
+            logger.warning("llm_validation_error prompt=%s error=%s", prompt_id, exc)
             raise LLMClientError(message) from exc
 
     @staticmethod

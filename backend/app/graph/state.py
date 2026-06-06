@@ -4,7 +4,6 @@ from typing import Any, TypedDict
 class GraphState(TypedDict):
     request_id: str
     query: str
-    data_mode: str
     max_records: int
     citation_limit: int
     preferred_visualization: str | None

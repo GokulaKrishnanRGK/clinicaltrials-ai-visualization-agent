@@ -10,5 +10,4 @@ async def health() -> dict[str, str]:
     return {
         "status": "ok",
         "service": settings.app_name,
-        "default_data_mode": settings.default_data_mode,
     }

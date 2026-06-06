@@ -12,7 +12,6 @@ class ResponseMetadata(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     source: Literal["clinicaltrials.gov"] = "clinicaltrials.gov"
-    data_mode: Literal["cache", "live"]
     filters: dict[str, Any] = Field(default_factory=dict)
     records_retrieved: int = Field(..., ge=0)
     records_used: int = Field(..., ge=0)
@@ -39,7 +38,6 @@ class VisualizationMessageResponse(BaseModel):
     reason: Literal[
         "vague_query",
         "unsupported_query",
-        "cache_miss",
         "llm_failure",
         "api_failure",
         "insufficient_data",
