@@ -1,4 +1,4 @@
-from typing import Any, TypedDict
+from typing import Any, NotRequired, TypedDict
 
 
 class GraphState(TypedDict):
@@ -25,6 +25,9 @@ class GraphState(TypedDict):
     records_retrieved: int
     tool_warnings: list[str]
     repair_count: int
+
+    # Set by assess_data_sufficiency; absent until that node runs.
+    records_sufficient: NotRequired[bool]
 
     agg_type: str | None
     agg_data: Any

@@ -51,27 +51,48 @@ class LLMClient:
         prompt = self.registry.render(prompt_id, variables, version=version)
         resolved_model = model or prompt.model_preference or self.model
         logger.debug("llm_call prompt=%s model=%s", prompt_id, resolved_model)
-        response = await self.completion_fn(
-            model=resolved_model,
-            messages=[message.model_dump() for message in prompt.messages],
-            temperature=self.temperature if temperature is None else temperature,
-            max_tokens=self.max_tokens if max_tokens is None else max_tokens,
-            response_format={"type": "json_object"},
-        )
-        content = self._extract_content(response)
-        usage = getattr(getattr(response, "usage", None), "total_tokens", None)
-        logger.debug("llm_response prompt=%s tokens=%s content_len=%d", prompt_id, usage, len(content))
-        try:
-            payload = json.loads(content)
-        except json.JSONDecodeError as exc:
-            logger.warning("llm_json_parse_error prompt=%s error=%s", prompt_id, exc)
-            raise LLMClientError(f"LLM response was not valid JSON: {exc}") from exc
-        try:
-            return TypeAdapter(response_model).validate_python(payload)
-        except ValidationError as exc:
-            message = f"LLM response failed {self._response_model_name(response_model)} validation"
-            logger.warning("llm_validation_error prompt=%s error=%s", prompt_id, exc)
-            raise LLMClientError(message) from exc
+
+        # One initial attempt + one repair retry (spec §17.2).
+        last_error: LLMClientError | None = None
+        for attempt in range(2):
+            if attempt > 0:
+                logger.info("llm_repair_retry prompt=%s attempt=%d", prompt_id, attempt)
+
+            response = await self.completion_fn(
+                model=resolved_model,
+                messages=[message.model_dump() for message in prompt.messages],
+                temperature=self.temperature if temperature is None else temperature,
+                max_tokens=self.max_tokens if max_tokens is None else max_tokens,
+                response_format={"type": "json_object"},
+            )
+            content = self._extract_content(response)
+            usage = getattr(getattr(response, "usage", None), "total_tokens", None)
+            logger.debug(
+                "llm_response prompt=%s attempt=%d tokens=%s content_len=%d",
+                prompt_id,
+                attempt,
+                usage,
+                len(content),
+            )
+
+            try:
+                payload = json.loads(content)
+            except json.JSONDecodeError as exc:
+                logger.warning("llm_json_parse_error prompt=%s attempt=%d error=%s", prompt_id, attempt, exc)
+                last_error = LLMClientError(f"LLM response was not valid JSON: {exc}")
+                last_error.__cause__ = exc
+                continue
+
+            try:
+                return TypeAdapter(response_model).validate_python(payload)
+            except ValidationError as exc:
+                msg = f"LLM response failed {self._response_model_name(response_model)} validation"
+                logger.warning("llm_validation_error prompt=%s attempt=%d error=%s", prompt_id, attempt, exc)
+                last_error = LLMClientError(msg)
+                last_error.__cause__ = exc
+                continue
+
+        raise last_error  # type: ignore[misc]
 
     @staticmethod
     def _extract_content(response: Any) -> str:

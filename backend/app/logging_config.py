@@ -7,12 +7,13 @@ Logs are written to stdout and to logs/app.log (rotating, 10 MB × 5 files).
 
 import logging
 import logging.handlers
-import os
 from pathlib import Path
 
 
 def configure_logging() -> None:
-    level_name = os.getenv("LOG_LEVEL", "INFO").upper()
+    from app.config import settings  # local import — keeps get_logger() import-safe everywhere
+
+    level_name = settings.log_level.upper()
     level = getattr(logging, level_name, logging.INFO)
 
     fmt = logging.Formatter(
