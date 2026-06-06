@@ -244,11 +244,7 @@ The `summary` field in `node_success` exposes the agent's decision at each step 
     "generated_at": "2026-06-06T14:32:10Z"
   },
   "warnings": [],
-  "assumptions": ["Start year was derived from startDateStruct.date when available."],
-  "suggested_queries": [
-    "How are Pembrolizumab trials distributed across phases?",
-    "Which countries have the most active Pembrolizumab trials?"
-  ]
+  "assumptions": ["Start year was derived from startDateStruct.date when available."]
 }
 ```
 
@@ -262,10 +258,6 @@ The `summary` field in `node_success` exposes the agent's decision at each step 
   "request_id": "req_msg_001",
   "message": "This application only answers questions about clinical trials. Please rephrase your question around trial data.",
   "reason": "unsupported_query",
-  "suggested_queries": [
-    "Show trials for semaglutide by phase",
-    "How many Alzheimer's trials are active in the US?"
-  ],
   "meta": null
 }
 ```
@@ -429,11 +421,6 @@ The `summary` field in `node_success` exposes the agent's decision at each step 
   "request_id": "req_msg_001",
   "message": "This application only answers questions about clinical trials — drugs, conditions, trial phases, sponsors, enrollment, and related topics.",
   "reason": "unsupported_query",
-  "suggested_queries": [
-    "Show trials for semaglutide by phase",
-    "How many Alzheimer's trials are active in the US?",
-    "Top sponsors for oncology trials"
-  ],
   "meta": null
 }
 ```
