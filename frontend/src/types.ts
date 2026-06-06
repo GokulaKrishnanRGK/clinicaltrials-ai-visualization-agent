@@ -114,9 +114,7 @@ export type VisualizationRequest = {
   status?: string;
   start_year?: number;
   end_year?: number;
-  max_records: number;
   preferred_visualization?: VisualizationType;
-  citation_limit: number;
 };
 
 export type ExampleCategory = "bar" | "comparison" | "time" | "network" | "advanced" | "system";

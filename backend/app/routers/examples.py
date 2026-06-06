@@ -19,8 +19,6 @@ class ExampleRequest(BaseModel):
     start_year: int | None = None
     end_year: int | None = None
     preferred_visualization: str | None = None
-    max_records: int = 500
-    citation_limit: int = 10
 
 
 class ExampleSummary(BaseModel):
@@ -38,8 +36,6 @@ _EXAMPLES: list[dict[str, Any]] = [
             "condition": "Alzheimer Disease",
             "status": "recruiting",
             "preferred_visualization": "bar_chart",
-            "max_records": 500,
-            "citation_limit": 10,
         },
     },
     {
@@ -51,8 +47,6 @@ _EXAMPLES: list[dict[str, Any]] = [
             "start_year": 2021,
             "end_year": 2025,
             "preferred_visualization": "grouped_bar_chart",
-            "max_records": 500,
-            "citation_limit": 10,
         },
     },
     {
@@ -63,8 +57,6 @@ _EXAMPLES: list[dict[str, Any]] = [
             "condition": "Diabetes Mellitus",
             "status": "completed",
             "preferred_visualization": "line_chart",
-            "max_records": 500,
-            "citation_limit": 10,
         },
     },
     {
@@ -75,8 +67,6 @@ _EXAMPLES: list[dict[str, Any]] = [
             "drug_name": "Pembrolizumab",
             "start_year": 2015,
             "preferred_visualization": "time_series",
-            "max_records": 500,
-            "citation_limit": 10,
         },
     },
     {
@@ -86,8 +76,6 @@ _EXAMPLES: list[dict[str, Any]] = [
             "query": "Map sponsors connected to immunotherapy conditions.",
             "condition": "Immunotherapy",
             "preferred_visualization": "network_graph",
-            "max_records": 500,
-            "citation_limit": 10,
         },
     },
     {
@@ -99,8 +87,6 @@ _EXAMPLES: list[dict[str, Any]] = [
             "start_year": 2018,
             "end_year": 2024,
             "preferred_visualization": "scatter_chart",
-            "max_records": 500,
-            "citation_limit": 10,
         },
     },
     {
@@ -110,8 +96,6 @@ _EXAMPLES: list[dict[str, Any]] = [
             "query": "Show the distribution of COVID-19 trial registrations across year ranges.",
             "condition": "COVID-19",
             "preferred_visualization": "histogram",
-            "max_records": 500,
-            "citation_limit": 10,
         },
     },
     {
@@ -120,8 +104,6 @@ _EXAMPLES: list[dict[str, Any]] = [
         "request": {
             "query": "Compare Pembrolizumab vs Nivolumab phase distribution.",
             "preferred_visualization": "grouped_bar_chart",
-            "max_records": 500,
-            "citation_limit": 10,
         },
     },
     {
@@ -131,8 +113,6 @@ _EXAMPLES: list[dict[str, Any]] = [
             "query": "Compare oncology trials in the United States vs Germany by phase.",
             "condition": "Neoplasms",
             "preferred_visualization": "grouped_bar_chart",
-            "max_records": 400,
-            "citation_limit": 10,
         },
     },
     {
@@ -142,8 +122,6 @@ _EXAMPLES: list[dict[str, Any]] = [
             "query": "Compare recruiting vs completed Alzheimer's trials by phase.",
             "condition": "Alzheimer Disease",
             "preferred_visualization": "grouped_bar_chart",
-            "max_records": 400,
-            "citation_limit": 10,
         },
     },
     {
@@ -152,8 +130,6 @@ _EXAMPLES: list[dict[str, Any]] = [
         "request": {
             "query": "Find brand-new live trial updates for a rare intervention.",
             "preferred_visualization": "bar_chart",
-            "max_records": 500,
-            "citation_limit": 10,
         },
     },
 ]

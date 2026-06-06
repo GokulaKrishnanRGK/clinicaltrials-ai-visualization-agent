@@ -4,8 +4,6 @@ from typing import Any, NotRequired, TypedDict
 class GraphState(TypedDict):
     request_id: str
     query: str
-    max_records: int
-    citation_limit: int
     preferred_visualization: str | None
     drug_name: str | None
     condition: str | None

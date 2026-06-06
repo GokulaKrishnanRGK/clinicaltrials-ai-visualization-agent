@@ -18,8 +18,6 @@ export function App() {
   const [showJson, setShowJson] = useState(false);
   const [selectedId, setSelectedId] = useState(localExamples[0].id);
   const [query, setQuery] = useState(localExamples[0].request.query);
-  const [citationLimit, setCitationLimit] = useState(5);
-  const [maxRecords, setMaxRecords] = useState(100);
   const [previewResponse, setPreviewResponse] = useState<VisualizationApiResponse | null>(null);
   const [isLiveMode, setIsLiveMode] = useState(true);
 
@@ -31,17 +29,13 @@ export function App() {
     () => ({
       ...selectedLocal.request,
       query,
-      citation_limit: citationLimit,
-      max_records: maxRecords,
     }),
-    [citationLimit, maxRecords, query, selectedLocal.request],
+    [query, selectedLocal.request],
   );
 
   const handleSelectExample = (example: Example, mode: "cache" | "live") => {
     setSelectedId(example.id);
     setQuery(example.request.query);
-    setCitationLimit(example.request.citation_limit);
-    setMaxRecords(example.request.max_records);
     stream.reset();
     setPreviewResponse(mode === "cache" ? example.response : null);
   };
@@ -77,12 +71,8 @@ export function App() {
           <div className="left-col">
             <ControlsPanel
               query={query}
-              citationLimit={citationLimit}
-              maxRecords={maxRecords}
               isSubmitting={stream.streaming}
               onQueryChange={setQuery}
-              onCitationLimitChange={setCitationLimit}
-              onMaxRecordsChange={setMaxRecords}
               onSubmit={() => stream.submit(request)}
             />
             {(stream.streaming || stream.nodes.length > 0) && (
@@ -102,7 +92,6 @@ export function App() {
 
           <VisualizationPanel
             response={response}
-            citationLimit={citationLimit}
             loading={loading}
             isLiveMode={isLiveMode}
           />

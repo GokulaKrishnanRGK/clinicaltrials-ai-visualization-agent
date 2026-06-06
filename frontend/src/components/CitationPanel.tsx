@@ -7,11 +7,10 @@ import type { SourceCitation } from "../types";
 type Props = {
   label: string;
   citations: SourceCitation[];
-  citationLimit: number;
   onClose: () => void;
 };
 
-export function CitationPanel({ label, citations, citationLimit, onClose }: Props) {
+export function CitationPanel({ label, citations, onClose }: Props) {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -20,7 +19,7 @@ export function CitationPanel({ label, citations, citationLimit, onClose }: Prop
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const empty = citationLimit === 0 || citations.length === 0;
+  const empty = citations.length === 0;
 
   return (
     <>

@@ -38,8 +38,6 @@ def _build_initial_state(request: VisualizationRequest, request_id: str) -> Grap
     return GraphState(
         request_id=request_id,
         query=request.query,
-        max_records=request.max_records,
-        citation_limit=request.citation_limit,
         preferred_visualization=(
             request.preferred_visualization.value if request.preferred_visualization else None
         ),

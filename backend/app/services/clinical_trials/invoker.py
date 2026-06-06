@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.logging_config import get_logger
 from app.schemas.clinical_trials import NormalizedTrialRecord
-from app.schemas.requests import VisualizationRequest
+from app.schemas.requests import MAX_RECORDS, VisualizationRequest
 from app.schemas.responses import ResponseMetadata
 from app.schemas.enums import STUDY_STATUS_ALIASES, TRIAL_PHASE_ALIASES
 from app.services.clinical_trials.client import ClinicalTrialsApiError, ClinicalTrialsGovClient
@@ -46,9 +46,9 @@ class ClinicalTrialsToolInvoker:
     def __init__(self, client: ClinicalTrialsGovClient | None = None) -> None:
         self.client = client or ClinicalTrialsGovClient()
 
-    async def invoke(self, request: VisualizationRequest) -> ClinicalTrialsToolResult:
-        filters = self._filters_from_request(request)
-        params = self._params_from_filters(filters, request.max_records)
+    async def invoke(self, request: VisualizationRequest, *, max_records: int = MAX_RECORDS) -> ClinicalTrialsToolResult:
+        filters = self._filters_from_request(request, max_records)
+        params = self._params_from_filters(filters, max_records)
         logger.debug("ct_api_request params=%s", params)
         try:
             payload = await self.client.search_studies(params)
@@ -73,7 +73,7 @@ class ClinicalTrialsToolInvoker:
             logger.warning("ct_normalization_skipped count=%d total=%d", skipped, len(studies))
             warnings.append("Some ClinicalTrials.gov studies were skipped during normalization.")
         if payload.get("nextPageToken"):
-            logger.info("ct_api_truncated max_records=%d more_available=true", request.max_records)
+            logger.info("ct_api_truncated max_records=%d more_available=true", max_records)
             warnings.append(
                 "Additional ClinicalTrials.gov records are available beyond max_records."
             )
@@ -86,10 +86,10 @@ class ClinicalTrialsToolInvoker:
             warnings=warnings,
         )
 
-    def _filters_from_request(self, request: VisualizationRequest) -> dict[str, str | int]:
+    def _filters_from_request(self, request: VisualizationRequest, max_records: int) -> dict[str, str | int]:
         filters: dict[str, str | int] = {
             "query": request.query,
-            "max_records": request.max_records,
+            "max_records": max_records,
         }
         optional_filters: dict[str, str | int | None] = {
             "drug_name": request.drug_name,

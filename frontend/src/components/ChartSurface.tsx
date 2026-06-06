@@ -7,11 +7,10 @@ import type { VisualizationApiResponse } from "../types";
 
 type ChartSurfaceProps = {
   response: VisualizationApiResponse | null;
-  citationLimit: number;
   loading?: boolean;
 };
 
-export function ChartSurface({ response, citationLimit, loading }: ChartSurfaceProps) {
+export function ChartSurface({ response, loading }: ChartSurfaceProps) {
   if (loading) {
     return (
       <section className="chart-panel chart-panel--loading" aria-busy aria-live="polite">
@@ -37,7 +36,7 @@ export function ChartSurface({ response, citationLimit, loading }: ChartSurfaceP
     );
   }
 
-  const citations = collectCitations(response).slice(0, citationLimit);
+  const citations = collectCitations(response);
 
   return (
     <section className="chart-panel">

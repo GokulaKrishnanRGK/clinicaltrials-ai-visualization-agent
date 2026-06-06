@@ -7,6 +7,7 @@ from app.graph.nodes._helpers import _truncate, intent_from_state
 from app.graph.state import GraphState
 from app.logging_config import get_logger
 from app.schemas.plan import AGG_TYPES, FetchSpec, RetrievalPlan
+from app.schemas.requests import MAX_RECORDS
 from app.services.clinical_trials.capabilities import build_capabilities_text
 
 logger = get_logger(__name__)
@@ -17,7 +18,7 @@ def _fallback_plan(state: GraphState) -> dict[str, Any]:
     intent = state.get("interpreted") or intent_from_state(state)
     spec: dict[str, Any] = {
         "label": intent.get("drug_name") or intent.get("condition") or "Results",
-        "max_records": state["max_records"],
+        "max_records": MAX_RECORDS,
     }
     for key in ("drug_name", "condition", "country", "status", "trial_phase", "sponsor",
                 "start_year", "end_year"):
@@ -33,10 +34,7 @@ async def plan_tool_calls(state: GraphState) -> dict[str, Any]:
     rid = state["request_id"]
     intent = state.get("interpreted") or intent_from_state(state)
     active_intent = {k: v for k, v in intent.items() if v is not None}
-    logger.debug(
-        "plan_tool_calls input request_id=%s intent=%s max_records=%d",
-        rid, active_intent, state["max_records"],
-    )
+    logger.debug("plan_tool_calls input request_id=%s intent=%s", rid, active_intent)
 
     try:
         from app.services.llm.client import LLMClient
@@ -48,7 +46,6 @@ async def plan_tool_calls(state: GraphState) -> dict[str, Any]:
             variables={
                 "query": state["query"],
                 "intent": json.dumps(active_intent),
-                "max_records": state["max_records"],
                 "capabilities": build_capabilities_text(),
             },
         )

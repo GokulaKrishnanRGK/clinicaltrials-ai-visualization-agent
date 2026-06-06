@@ -36,8 +36,6 @@ export const examples: Example[] = [
       query: "Which countries have the most oncology trials? Show the top 20 countries.",
       condition: "Neoplasms",
       preferred_visualization: "bar_chart",
-      max_records: 500,
-      citation_limit: 5,
     },
     response: {
       status: "visualization",
@@ -119,8 +117,6 @@ export const examples: Example[] = [
       condition: "Alzheimer Disease",
       status: "recruiting",
       preferred_visualization: "bar_chart",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -182,8 +178,6 @@ export const examples: Example[] = [
       query: "Show COVID-19 trials broken down by current status.",
       condition: "COVID-19",
       preferred_visualization: "bar_chart",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -246,8 +240,6 @@ export const examples: Example[] = [
       condition: "Neoplasms",
       status: "recruiting",
       preferred_visualization: "bar_chart",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -315,8 +307,6 @@ export const examples: Example[] = [
       start_year: 2021,
       end_year: 2025,
       preferred_visualization: "grouped_bar_chart",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -385,8 +375,6 @@ export const examples: Example[] = [
       query: "Compare heart failure trial phases between industry and academic sponsors.",
       condition: "Heart Failure",
       preferred_visualization: "grouped_bar_chart",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -465,8 +453,6 @@ export const examples: Example[] = [
     request: {
       query: "Compare Pembrolizumab vs Nivolumab phase distribution.",
       preferred_visualization: "grouped_bar_chart",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -551,8 +537,6 @@ export const examples: Example[] = [
       query: "Compare oncology trials in the United States vs Germany by phase.",
       condition: "Neoplasms",
       preferred_visualization: "grouped_bar_chart",
-      max_records: 400,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -625,8 +609,6 @@ export const examples: Example[] = [
       query: "Compare recruiting vs completed Alzheimer's trials by phase.",
       condition: "Alzheimer Disease",
       preferred_visualization: "grouped_bar_chart",
-      max_records: 400,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -702,8 +684,6 @@ export const examples: Example[] = [
       condition: "Diabetes Mellitus",
       status: "completed",
       preferred_visualization: "line_chart",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -764,8 +744,6 @@ export const examples: Example[] = [
       drug_name: "Pembrolizumab",
       start_year: 2015,
       preferred_visualization: "time_series",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -828,8 +806,6 @@ export const examples: Example[] = [
       start_year: 2020,
       end_year: 2024,
       preferred_visualization: "time_series",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -894,8 +870,6 @@ export const examples: Example[] = [
       query: "Map sponsors connected to immunotherapy conditions.",
       condition: "Immunotherapy",
       preferred_visualization: "network_graph",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -962,8 +936,6 @@ export const examples: Example[] = [
       query: "Show how GLP-1 drugs like semaglutide and tirzepatide connect to conditions.",
       condition: "Obesity",
       preferred_visualization: "network_graph",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -1072,8 +1044,6 @@ export const examples: Example[] = [
       start_year: 2018,
       end_year: 2024,
       preferred_visualization: "scatter_chart",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -1138,8 +1108,6 @@ export const examples: Example[] = [
       query: "Show the distribution of COVID-19 trial registrations across year ranges.",
       condition: "COVID-19",
       preferred_visualization: "histogram",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "visualization",
@@ -1205,8 +1173,6 @@ export const examples: Example[] = [
     request: {
       query: "What is the best recipe for chocolate chip cookies?",
       preferred_visualization: "bar_chart",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "message",
@@ -1231,8 +1197,6 @@ export const examples: Example[] = [
     request: {
       query: "Find active trials for a brand-new experimental intervention with no registered studies.",
       preferred_visualization: "bar_chart",
-      max_records: 500,
-      citation_limit: 10,
     },
     response: {
       status: "message",

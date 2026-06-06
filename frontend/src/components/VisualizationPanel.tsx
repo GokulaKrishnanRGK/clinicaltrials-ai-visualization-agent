@@ -25,12 +25,11 @@ function isCountryBarChart(viz: VisualizationSpec): viz is ChartVisualizationSpe
 
 type Props = {
   response: VisualizationApiResponse | null;
-  citationLimit: number;
   loading?: boolean;
   isLiveMode?: boolean;
 };
 
-export function VisualizationPanel({ response, citationLimit, loading, isLiveMode }: Props) {
+export function VisualizationPanel({ response, loading, isLiveMode }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>("bar");
   const [mapState, setMapState] = useState<MapState>(
     isWorldMapRegistered() ? "ready" : "idle",
@@ -42,6 +41,14 @@ export function VisualizationPanel({ response, citationLimit, loading, isLiveMod
     setViewMode("bar");
     setCitationPanel(null);
   }, [response]);
+
+  // Lock body scroll while citation panel is open
+  useEffect(() => {
+    document.body.style.overflow = citationPanel ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [citationPanel]);
 
   const handleMapToggle = async () => {
     setViewMode("map");
@@ -203,7 +210,7 @@ export function VisualizationPanel({ response, citationLimit, loading, isLiveMod
   }
 
   const { visualization, meta, warnings, assumptions } = response;
-  const citations = collectCitations(response).slice(0, citationLimit);
+  const citations = collectCitations(response);
   const isNetwork = visualization.type === "network_graph";
   const showMapToggle = isCountryBarChart(visualization);
 
@@ -270,7 +277,7 @@ export function VisualizationPanel({ response, citationLimit, loading, isLiveMod
         </div>
       )}
 
-      {citationLimit > 0 && (
+      {citations.length > 0 && (
         <div className="viz-citations">
           <h3>Citations ({citations.length})</h3>
           {citations.length > 0 ? (
@@ -324,7 +331,6 @@ export function VisualizationPanel({ response, citationLimit, loading, isLiveMod
         <CitationPanel
           label={citationPanel.label}
           citations={citationPanel.citations}
-          citationLimit={citationLimit}
           onClose={() => setCitationPanel(null)}
         />
       )}

@@ -5,6 +5,7 @@ from typing import Any
 from app.graph.nodes._helpers import build_meta
 from app.graph.state import GraphState
 from app.logging_config import get_logger
+from app.schemas.requests import MAX_RECORDS
 from app.schemas.responses import VisualizationMessageResponse
 from app.services.clinical_trials.invoker import ClinicalTrialsToolError, ClinicalTrialsToolInvoker
 
@@ -55,7 +56,6 @@ async def execute_tool_calls(state: GraphState) -> dict[str, Any]:
                 status=spec.get("status"),
                 start_year=spec.get("start_year"),
                 end_year=spec.get("end_year"),
-                max_records=spec.get("max_records", state["max_records"]),
             )
         except Exception as exc:
             logger.warning(
@@ -65,7 +65,7 @@ async def execute_tool_calls(state: GraphState) -> dict[str, Any]:
             continue
 
         try:
-            result = await invoker.invoke(request)
+            result = await invoker.invoke(request, max_records=spec.get("max_records", MAX_RECORDS))
         except ClinicalTrialsToolError as exc:
             logger.warning(
                 "execute_tool_calls api_failure request_id=%s label=%r error=%s",

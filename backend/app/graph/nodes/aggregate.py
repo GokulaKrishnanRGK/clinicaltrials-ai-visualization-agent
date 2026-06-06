@@ -7,6 +7,7 @@ from pydantic import TypeAdapter
 from app.graph.state import GraphState
 from app.logging_config import get_logger
 from app.schemas.clinical_trials import NormalizedTrialRecord
+from app.schemas.requests import CITATION_LIMIT
 from app.services import aggregation as agg
 
 logger = get_logger(__name__)
@@ -17,42 +18,41 @@ def aggregate_data(state: GraphState) -> dict[str, Any]:
     rid = state["request_id"]
     plan = state.get("retrieval_plan") or {}
     agg_type = plan.get("agg_type") or "by_phase"
-    limit = state["citation_limit"]
     raw_records = state.get("records", [])
 
     logger.debug(
-        "aggregate_data input request_id=%s agg_type=%s record_count=%d citation_limit=%d",
-        rid, agg_type, len(raw_records), limit,
+        "aggregate_data input request_id=%s agg_type=%s record_count=%d",
+        rid, agg_type, len(raw_records),
     )
 
     if agg_type == "by_phase_per_label":
         # Records are tagged dicts with a `label` field — skip NormalizedTrialRecord validation.
-        data = agg.count_by_phase_per_label(raw_records, citation_limit=limit)
+        data = agg.count_by_phase_per_label(raw_records, citation_limit=CITATION_LIMIT)
     else:
         records = _RecordAdapter.validate_python(raw_records)
         if agg_type == "by_year":
             from_year = (state.get("interpreted") or {}).get("start_year")
-            data = agg.count_by_year(records, from_year=from_year, citation_limit=limit)
+            data = agg.count_by_year(records, from_year=from_year, citation_limit=CITATION_LIMIT)
         elif agg_type == "by_country":
-            data = agg.count_by_country(records, citation_limit=limit)
+            data = agg.count_by_country(records, citation_limit=CITATION_LIMIT)
         elif agg_type == "by_phase":
-            data = agg.count_by_phase(records, citation_limit=limit)
+            data = agg.count_by_phase(records, citation_limit=CITATION_LIMIT)
         elif agg_type == "by_status":
-            data = agg.count_by_status(records, citation_limit=limit)
+            data = agg.count_by_status(records, citation_limit=CITATION_LIMIT)
         elif agg_type == "by_phase_and_status":
-            data = agg.count_by_phase_and_status(records, citation_limit=limit)
+            data = agg.count_by_phase_and_status(records, citation_limit=CITATION_LIMIT)
         elif agg_type == "by_sponsor":
-            data = agg.count_by_sponsor(records, citation_limit=limit)
+            data = agg.count_by_sponsor(records, citation_limit=CITATION_LIMIT)
         elif agg_type == "scatter_by_year":
-            data = agg.scatter_interventions_by_year(records, citation_limit=limit)
+            data = agg.scatter_interventions_by_year(records, citation_limit=CITATION_LIMIT)
         elif agg_type == "histogram_by_year":
-            data = agg.histogram_start_years(records, citation_limit=limit)
+            data = agg.histogram_start_years(records, citation_limit=CITATION_LIMIT)
         elif agg_type == "drug_cooccurrence_network":
-            data = agg.build_drug_cooccurrence_network(records, citation_limit=limit)
+            data = agg.build_drug_cooccurrence_network(records, citation_limit=CITATION_LIMIT)
         elif agg_type == "drug_condition_network":
-            data = agg.build_drug_condition_network(records, citation_limit=limit)
+            data = agg.build_drug_condition_network(records, citation_limit=CITATION_LIMIT)
         else:
-            data = agg.build_drug_sponsor_network(records, citation_limit=limit)
+            data = agg.build_drug_sponsor_network(records, citation_limit=CITATION_LIMIT)
 
     row_count = len(data) if isinstance(data, list) else 1
     logger.info(

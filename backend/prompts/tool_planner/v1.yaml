@@ -40,7 +40,7 @@ system_template: |
     1. Use exactly 1 call for single-entity queries.
     2. Use 2–4 calls for "X vs Y", "compare A and B", or any multi-entity comparison.
     3. Multi-call plans must use agg_type "by_phase_per_label".
-    4. Set max_records to (total_max_records / number_of_calls), minimum 50.
+    4. Set max_records to 100 for single-call plans; divide 100 evenly across calls for multi-call plans, minimum 50 per call.
     5. Choose agg_type based on the query intent:
        - "over time", "trend", "change", year ranges → by_year
        - "vs", "compare", multi-entity → by_phase_per_label (multi-call)
@@ -69,32 +69,32 @@ system_template: |
   Query: "Show Pembrolizumab trials by phase"
   Intent: {{"drug_name": "Pembrolizumab"}}
   Output:
-  {{"calls": [{{"label": "Pembrolizumab", "drug_name": "Pembrolizumab", "max_records": 500}}], "agg_type": "by_phase"}}
+  {{"calls": [{{"label": "Pembrolizumab", "drug_name": "Pembrolizumab", "max_records": 100}}], "agg_type": "by_phase"}}
 
   Query: "Which countries have the most oncology trials? Show top 20."
   Intent: {{"condition": "Neoplasms"}}
   Output:
-  {{"calls": [{{"label": "Oncology Trials", "condition": "Neoplasms", "max_records": 500}}], "agg_type": "by_country"}}
+  {{"calls": [{{"label": "Oncology Trials", "condition": "Neoplasms", "max_records": 100}}], "agg_type": "by_country"}}
 
   Query: "Compare Pembrolizumab vs Nivolumab phase distribution"
   Intent: {{"drug_name": "Pembrolizumab", "drug_name_2": "Nivolumab"}}
   Output:
-  {{"calls": [{{"label": "Pembrolizumab", "drug_name": "Pembrolizumab", "max_records": 250}}, {{"label": "Nivolumab", "drug_name": "Nivolumab", "max_records": 250}}], "agg_type": "by_phase_per_label"}}
+  {{"calls": [{{"label": "Pembrolizumab", "drug_name": "Pembrolizumab", "max_records": 50}}, {{"label": "Nivolumab", "drug_name": "Nivolumab", "max_records": 50}}], "agg_type": "by_phase_per_label"}}
 
   Query: "Compare oncology trials in the US vs Germany"
   Intent: {{"condition": "Neoplasms"}}
   Output:
-  {{"calls": [{{"label": "United States", "condition": "Neoplasms", "country": "United States", "max_records": 200}}, {{"label": "Germany", "condition": "Neoplasms", "country": "Germany", "max_records": 200}}], "agg_type": "by_phase_per_label"}}
+  {{"calls": [{{"label": "United States", "condition": "Neoplasms", "country": "United States", "max_records": 50}}, {{"label": "Germany", "condition": "Neoplasms", "country": "Germany", "max_records": 50}}], "agg_type": "by_phase_per_label"}}
 
   Query: "Compare recruiting vs completed Alzheimer's trials by phase"
   Intent: {{"condition": "Alzheimer Disease"}}
   Output:
-  {{"calls": [{{"label": "Recruiting", "condition": "Alzheimer Disease", "status": "RECRUITING", "max_records": 200}}, {{"label": "Completed", "condition": "Alzheimer Disease", "status": "COMPLETED", "max_records": 200}}], "agg_type": "by_phase_per_label"}}
+  {{"calls": [{{"label": "Recruiting", "condition": "Alzheimer Disease", "status": "RECRUITING", "max_records": 50}}, {{"label": "Completed", "condition": "Alzheimer Disease", "status": "COMPLETED", "max_records": 50}}], "agg_type": "by_phase_per_label"}}
 
   Query: "How did COVID-19 trial registrations change between 2020 and 2024?"
   Intent: {{"condition": "COVID-19", "start_year": 2020, "end_year": 2024}}
   Output:
-  {{"calls": [{{"label": "COVID-19 Trials", "condition": "COVID-19", "start_year": 2020, "end_year": 2024, "max_records": 500}}], "agg_type": "by_year"}}
+  {{"calls": [{{"label": "COVID-19 Trials", "condition": "COVID-19", "start_year": 2020, "end_year": 2024, "max_records": 100}}], "agg_type": "by_year"}}
 
 human_template: |
   {capabilities}
@@ -104,13 +104,10 @@ human_template: |
 
   Extracted intent: {intent}
 
-  Total max_records budget: {max_records}
-
   Generate a RetrievalPlan (calls + agg_type).
 variables:
   - query
   - intent
-  - max_records
   - capabilities
 fallback_output:
   calls:
