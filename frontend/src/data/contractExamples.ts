@@ -27,6 +27,88 @@ const baseMeta = (
 export const examples: Example[] = [
   // ── Bar Charts ────────────────────────────────────────────────────────────
   {
+    id: "choropleth",
+    label: "Oncology trials — world map",
+    category: "bar",
+    chartType: "Bar + Map",
+    toolCalls: 1,
+    request: {
+      query: "Which countries have the most oncology trials? Show the top 20 countries.",
+      condition: "Neoplasms",
+      preferred_visualization: "bar_chart",
+      max_records: 1000,
+      citation_limit: 5,
+    },
+    response: {
+      status: "visualization",
+      request_id: "req_choropleth_001",
+      visualization: {
+        type: "bar_chart",
+        title: "Top 20 Countries by Oncology Trial Count",
+        description:
+          "Countries ranked by total registered oncology trial count. Toggle to Map for a choropleth view.",
+        encoding: { x: "country", y: "trial_count" },
+        data: [
+          {
+            country: "United States",
+            trial_count: 2841,
+            citations: [
+              citation(
+                "NCT04586270",
+                "protocolSection.contactsLocationsModule.locations",
+                "United States",
+                "Lung Cancer Survival Study",
+              ),
+            ],
+          },
+          { country: "France", trial_count: 612, citations: [] },
+          { country: "Germany", trial_count: 534, citations: [] },
+          { country: "Spain", trial_count: 512, citations: [] },
+          { country: "Italy", trial_count: 498, citations: [] },
+          {
+            country: "United Kingdom",
+            trial_count: 487,
+            citations: [
+              citation(
+                "NCT04895618",
+                "protocolSection.contactsLocationsModule.locations",
+                "United Kingdom",
+                "Nivolumab NSCLC Study",
+              ),
+            ],
+          },
+          { country: "China", trial_count: 423, citations: [] },
+          { country: "Canada", trial_count: 387, citations: [] },
+          { country: "Netherlands", trial_count: 312, citations: [] },
+          { country: "Belgium", trial_count: 287, citations: [] },
+          { country: "Australia", trial_count: 265, citations: [] },
+          { country: "Japan", trial_count: 248, citations: [] },
+          { country: "Poland", trial_count: 187, citations: [] },
+          { country: "Switzerland", trial_count: 164, citations: [] },
+          { country: "Denmark", trial_count: 142, citations: [] },
+          { country: "Sweden", trial_count: 138, citations: [] },
+          { country: "Korea, Republic of", trial_count: 124, citations: [] },
+          { country: "Brazil", trial_count: 118, citations: [] },
+          { country: "Israel", trial_count: 112, citations: [] },
+          { country: "India", trial_count: 98, citations: [] },
+        ],
+        render_hints: {
+          x_axis_label: "Country",
+          y_axis_label: "Trials",
+          series_name: "Total trials",
+          sort: "desc",
+        },
+      },
+      meta: baseMeta({ condition: "Neoplasms" }, 6788, 6788),
+      warnings: [
+        "Trials with multiple country sites are counted once per unique country.",
+      ],
+      assumptions: [
+        "Country is derived from the locations module; trials with no location data are excluded.",
+      ],
+    },
+  },
+  {
     id: "bar",
     label: "Alzheimer's trials by country",
     category: "bar",

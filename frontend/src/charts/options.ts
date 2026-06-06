@@ -1,6 +1,7 @@
 import type { EChartsOption } from "echarts";
 
-import type { ChartDatum, NetworkNode, VisualizationSpec } from "../types";
+import type { ChartDatum, ChartVisualizationSpec, NetworkNode, VisualizationSpec } from "../types";
+import { COUNTRY_ALIASES } from "./worldMap";
 
 const CHART_COLORS = ["#3b82f6", "#06b6d4", "#f59e0b", "#10b981", "#f43f5e", "#8b5cf6"];
 
@@ -21,6 +22,61 @@ function cssVar(name: string, fallback: string): string {
 function getField<T extends string | number>(datum: ChartDatum, field: string, fallback: T): T {
   const value = datum[field];
   return typeof value === typeof fallback ? (value as T) : fallback;
+}
+
+export function choroplethOption(visualization: ChartVisualizationSpec): EChartsOption {
+  const xField = visualization.encoding.x;
+  const yField = visualization.encoding.y;
+  const hints = visualization.render_hints;
+
+  const textColor = cssVar("--text-1", "#e2e8f0");
+  const borderColor = cssVar("--border", "#2d3748");
+  const areaColor = cssVar("--surface-2", "#1e2430");
+
+  const data = visualization.data.map((datum) => {
+    const raw = String(getField(datum, xField, ""));
+    return { name: COUNTRY_ALIASES[raw] ?? raw, value: getField(datum, yField, 0) };
+  });
+
+  const maxVal = data.reduce((m, d) => Math.max(m, Number(d.value)), 1);
+
+  return {
+    tooltip: {
+      trigger: "item",
+      formatter: (params) => {
+        const p = params as { name: string; value?: number };
+        return p.value != null
+          ? `<strong>${p.name}</strong><br/>${hints?.y_axis_label ?? "Trials"}: ${p.value}`
+          : p.name;
+      },
+    },
+    visualMap: {
+      min: 0,
+      max: maxVal,
+      left: 12,
+      bottom: 12,
+      orient: "vertical",
+      text: ["High", "Low"],
+      calculable: true,
+      inRange: { color: ["#dbeafe", "#2563eb"] },
+      textStyle: { color: textColor, fontSize: 11 },
+    },
+    series: [
+      {
+        type: "map",
+        map: "world",
+        roam: true,
+        data,
+        nameProperty: "name",
+        itemStyle: { areaColor, borderColor, borderWidth: 0.5 },
+        emphasis: {
+          itemStyle: { areaColor: "#f59e0b" },
+          label: { color: textColor, fontSize: 11 },
+        },
+        select: { disabled: true },
+      },
+    ],
+  } as EChartsOption;
 }
 
 export function chartOption(visualization: VisualizationSpec): EChartsOption {

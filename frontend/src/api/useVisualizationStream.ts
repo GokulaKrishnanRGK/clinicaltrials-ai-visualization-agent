@@ -102,7 +102,7 @@ function applyEvent(prev: StreamStatus, event: StreamEvent): StreamStatus {
     case "node_success":
       return {
         ...prev,
-        nodes: upsert(prev.nodes, event.node, { status: "success", duration_ms: event.duration_ms }),
+        nodes: upsert(prev.nodes, event.node, { status: "success", duration_ms: event.duration_ms, summary: event.summary }),
       };
 
     case "node_error":

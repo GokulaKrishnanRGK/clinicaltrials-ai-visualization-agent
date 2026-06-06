@@ -85,4 +85,8 @@ def message_insufficient(state: GraphState) -> dict[str, Any]:
         msg.reason,
         msg.message[:80],
     )
-    return {"final_response": msg.model_dump(mode="json")}
+    records_retrieved = state.get("records_retrieved", 0)
+    return {
+        "final_response": msg.model_dump(mode="json"),
+        "node_summary": f"Insufficient data · {records_retrieved} records retrieved",
+    }

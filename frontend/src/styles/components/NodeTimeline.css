@@ -15,12 +15,37 @@
   gap: 2px;
 }
 
+.timeline-item {
+  display: grid;
+}
+
 .timeline-row {
   display: grid;
   grid-template-columns: 16px 1fr auto;
   align-items: center;
   gap: 7px;
   padding: 4px 0;
+}
+
+.timeline-row--expandable {
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.timeline-row--expandable:hover {
+  background: var(--surface-2);
+}
+
+.node-summary {
+  grid-column: 1 / -1;
+  margin: 1px 0 4px 23px;
+  padding: 5px 8px;
+  font-size: 0.72rem;
+  color: var(--text-2);
+  line-height: 1.5;
+  background: var(--surface-2);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 4px 4px 0;
 }
 
 .status-icon {
@@ -81,6 +106,18 @@
   color: #fbbf24;
   background: rgba(251, 191, 36, 0.12);
   border-radius: 3px;
+}
+
+.chevron-icon {
+  width: 11px;
+  height: 11px;
+  color: var(--text-3);
+  transition: transform 0.15s;
+  flex-shrink: 0;
+}
+
+.chevron-icon--open {
+  transform: rotate(180deg);
 }
 
 .timeline-error {

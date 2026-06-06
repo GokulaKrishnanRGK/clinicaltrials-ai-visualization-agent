@@ -22,12 +22,13 @@ _ResponseAdapter = TypeAdapter(VisualizationApiResponse)
 
 _TRACKED_NODES = {
     "interpret_question",
-    "create_retrieval_plan",
-    "execute_tools",
+    "plan_tool_calls",
+    "execute_tool_calls",
     "assess_data_sufficiency",
     "repair_plan",
     "aggregate_data",
     "generate_visualization_spec",
+    "generate_insight",
     "validate_response",
     "message_insufficient",
 }
@@ -115,8 +116,10 @@ async def stream_visualization(request: VisualizationRequest) -> StreamingRespon
             elif ev_type == "on_chain_end" and name in _TRACKED_NODES:
                 elapsed = time.monotonic() - node_start_times.get(name, time.monotonic())
                 duration_ms = int(elapsed * 1000)
+                output = event.get("data", {}).get("output", {})
+                summary = output.get("node_summary", "") if isinstance(output, dict) else ""
                 logger.debug("node_success request_id=%s node=%s duration_ms=%d", request_id, name, duration_ms)
-                yield _sse({"type": "node_success", "node": name, "duration_ms": duration_ms})
+                yield _sse({"type": "node_success", "node": name, "duration_ms": duration_ms, "summary": summary})
 
             elif ev_type == "on_chain_error" and name in _TRACKED_NODES:
                 error = str(event.get("data", {}).get("error", "unknown error"))

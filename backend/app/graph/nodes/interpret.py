@@ -79,7 +79,7 @@ async def interpret_question(state: GraphState) -> dict[str, Any]:
                 suggested_queries=_SUGGESTED_QUERIES,
                 meta=meta,
             )
-            return {"final_response": msg.model_dump(mode="json")}
+            return {"final_response": msg.model_dump(mode="json"), "node_summary": "Out of scope"}
 
         interpreted = parsed.model_dump(exclude={"in_scope", "assumptions", "warnings"})
         active_filters = {k: v for k, v in interpreted.items() if v is not None}
@@ -90,10 +90,18 @@ async def interpret_question(state: GraphState) -> dict[str, Any]:
             len(parsed.assumptions),
             len(parsed.warnings),
         )
+        _KEY_LABELS = {
+            "drug_name": "drug", "condition": "condition", "trial_phase": "phase",
+            "sponsor": "sponsor", "country": "country", "status": "status",
+            "start_year": "from", "end_year": "to", "preferred_visualization": "viz",
+        }
+        parts = [f"{_KEY_LABELS.get(k, k)}: {v}" for k, v in active_filters.items() if k in _KEY_LABELS]
+        node_summary = " · ".join(parts[:4]) if parts else "no filters extracted"
         return {
             "interpreted": interpreted,
             "assumptions": parsed.assumptions,
             "warnings": parsed.warnings,
+            "node_summary": node_summary,
         }
     except Exception as exc:
         logger.warning(
@@ -109,6 +117,7 @@ async def interpret_question(state: GraphState) -> dict[str, Any]:
             "interpreted": fallback,
             "assumptions": [],
             "warnings": [],
+            "node_summary": "Parse failed — raw query filters applied",
         }
 
 

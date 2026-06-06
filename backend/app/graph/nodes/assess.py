@@ -41,7 +41,11 @@ def assess_data_sufficiency(state: GraphState) -> dict[str, Any]:
             repair_count,
         )
 
-    return {"records_sufficient": sufficient}
+    if sufficient:
+        node_summary = f"Sufficient — {record_count} records"
+    else:
+        node_summary = f"Insufficient — {record_count} records (need ≥ {_MIN_RECORDS})"
+    return {"records_sufficient": sufficient, "node_summary": node_summary}
 
 
 def repair_plan(state: GraphState) -> dict[str, Any]:
@@ -67,4 +71,8 @@ def repair_plan(state: GraphState) -> dict[str, Any]:
 
     plan["calls"] = calls
     logger.debug("repair_plan output request_id=%s plan=%s", rid, plan)
-    return {"retrieval_plan": plan, "repair_count": repair_count + 1}
+    return {
+        "retrieval_plan": plan,
+        "repair_count": repair_count + 1,
+        "node_summary": f"Repair #{repair_count + 1} — expanded max to {new_max}",
+    }

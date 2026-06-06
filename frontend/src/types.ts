@@ -83,6 +83,7 @@ export type VisualizationSuccessResponse = {
   meta: ResponseMetadata;
   warnings: string[];
   assumptions: string[];
+  insight?: string | null;
 };
 
 export type VisualizationMessageResponse = {

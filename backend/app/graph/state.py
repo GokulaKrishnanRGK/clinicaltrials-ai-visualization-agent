@@ -34,3 +34,6 @@ class GraphState(TypedDict):
     agg_data: Any
 
     final_response: dict[str, Any] | None
+
+    # One-line decision summary written by each node; read by the SSE router.
+    node_summary: NotRequired[str]

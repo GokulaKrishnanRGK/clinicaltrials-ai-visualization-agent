@@ -206,4 +206,5 @@ def generate_visualization_spec(state: GraphState) -> dict[str, Any]:
         len(records),
         title,
     )
-    return {"final_response": response.model_dump(mode="json")}
+    node_summary = f"{spec.type.value.replace('_', ' ')}: {title}"
+    return {"final_response": response.model_dump(mode="json"), "node_summary": node_summary}

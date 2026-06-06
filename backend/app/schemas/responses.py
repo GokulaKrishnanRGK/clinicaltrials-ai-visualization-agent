@@ -27,6 +27,7 @@ class VisualizationSuccessResponse(BaseModel):
     meta: ResponseMetadata
     warnings: list[str] = Field(default_factory=list)
     assumptions: list[str] = Field(default_factory=list)
+    insight: str | None = None
 
 
 class VisualizationMessageResponse(BaseModel):

@@ -15,6 +15,7 @@ const CATEGORIES: { id: ExampleCategory; label: string }[] = [
 
 const CHART_TYPE_COLOR: Record<string, string> = {
   "Bar Chart": "#3b82f6",
+  "Bar + Map": "#0ea5e9",
   "Grouped Bar": "#8b5cf6",
   "Line Chart": "#10b981",
   "Time Series": "#f59e0b",

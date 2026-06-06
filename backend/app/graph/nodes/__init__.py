@@ -6,6 +6,7 @@ from app.graph.nodes.edges import (
     route_after_interpret,
 )
 from app.graph.nodes.execute import execute_tool_calls
+from app.graph.nodes.insight import generate_insight
 from app.graph.nodes.interpret import interpret_question
 from app.graph.nodes.plan import plan_tool_calls
 from app.graph.nodes.validate import message_insufficient, validate_response
@@ -22,6 +23,7 @@ __all__ = [
     "repair_plan",
     "aggregate_data",
     "generate_visualization_spec",
+    "generate_insight",
     "validate_response",
     "message_insufficient",
 ]

@@ -63,7 +63,7 @@ async def plan_tool_calls(state: GraphState) -> dict[str, Any]:
             "plan_tool_calls failed request_id=%s error=%s — using fallback plan",
             rid, exc, exc_info=True,
         )
-        return {"retrieval_plan": _fallback_plan(state)}
+        return {"retrieval_plan": _fallback_plan(state), "node_summary": "Plan failed — single-call fallback"}
 
     plan_dict = plan.model_dump()
     logger.info(
@@ -74,4 +74,6 @@ async def plan_tool_calls(state: GraphState) -> dict[str, Any]:
         [c.label for c in plan.calls],
     )
     logger.debug("plan_tool_calls output request_id=%s plan=%s", rid, plan_dict)
-    return {"retrieval_plan": plan_dict}
+    labels = [c.label for c in plan.calls]
+    node_summary = f"{len(labels)} call(s): {', '.join(labels[:3])} · agg: {plan.agg_type}"
+    return {"retrieval_plan": plan_dict, "node_summary": node_summary}

@@ -31,7 +31,7 @@ async def execute_tool_calls(state: GraphState) -> dict[str, Any]:
 
     if not calls:
         logger.warning("execute_tool_calls no_calls request_id=%s — no calls in plan", rid)
-        return _api_failure_response(state, "retrieval plan produced no API calls")
+        return {**_api_failure_response(state, "retrieval plan produced no API calls"), "node_summary": "No calls in plan — API failure"}
 
     logger.debug(
         "execute_tool_calls start request_id=%s calls=%d agg_type=%s",
@@ -87,7 +87,7 @@ async def execute_tool_calls(state: GraphState) -> dict[str, Any]:
         )
 
     if not all_records and not total_retrieved:
-        return _api_failure_response(state, "all API calls failed or returned no data")
+        return {**_api_failure_response(state, "all API calls failed or returned no data"), "node_summary": "All API calls failed"}
 
     logger.info(
         "execute_tool_calls complete request_id=%s total_retrieved=%d total_normalized=%d",
@@ -111,6 +111,7 @@ async def execute_tool_calls(state: GraphState) -> dict[str, Any]:
         "records": all_records,
         "records_retrieved": total_retrieved,
         "tool_warnings": all_warnings,
+        "node_summary": f"{total_retrieved} records fetched · {len(calls)} call(s)",
     }
 
 

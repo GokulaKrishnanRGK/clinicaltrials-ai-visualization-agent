@@ -59,4 +59,4 @@ def aggregate_data(state: GraphState) -> dict[str, Any]:
     if logger.isEnabledFor(10) and isinstance(data, list) and data:
         first = {k: v for k, v in data[0].items() if k != "citations"}
         logger.debug("aggregate_data first_row request_id=%s row=%s", rid, first)
-    return {"agg_type": agg_type, "agg_data": data}
+    return {"agg_type": agg_type, "agg_data": data, "node_summary": f"{row_count} point(s) · method: {agg_type}"}

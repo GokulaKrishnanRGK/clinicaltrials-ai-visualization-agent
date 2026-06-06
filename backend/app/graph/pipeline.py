@@ -4,6 +4,7 @@ from app.graph.nodes import (
     aggregate_data,
     assess_data_sufficiency,
     execute_tool_calls,
+    generate_insight,
     generate_visualization_spec,
     interpret_question,
     message_insufficient,
@@ -26,6 +27,7 @@ def build_pipeline():
     graph.add_node("repair_plan", repair_plan)
     graph.add_node("aggregate_data", aggregate_data)
     graph.add_node("generate_visualization_spec", generate_visualization_spec)
+    graph.add_node("generate_insight", generate_insight)
     graph.add_node("validate_response", validate_response)
     graph.add_node("message_insufficient", message_insufficient)
 
@@ -52,7 +54,8 @@ def build_pipeline():
 
     graph.add_edge("repair_plan", "execute_tool_calls")
     graph.add_edge("aggregate_data", "generate_visualization_spec")
-    graph.add_edge("generate_visualization_spec", "validate_response")
+    graph.add_edge("generate_visualization_spec", "generate_insight")
+    graph.add_edge("generate_insight", "validate_response")
     graph.add_edge("validate_response", END)
     graph.add_edge("message_insufficient", END)
 
