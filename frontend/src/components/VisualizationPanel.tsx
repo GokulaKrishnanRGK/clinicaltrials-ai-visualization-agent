@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { chartOption, choroplethOption } from "../charts/options";
 import { ensureWorldMap, isWorldMapRegistered, COUNTRY_ALIASES } from "../charts/worldMap";
-import { collectCitations } from "../contractUtils";
+import { collectCitations, formatFieldPath } from "../contractUtils";
 import "../styles/components/VisualizationPanel.css";
 import type {
   ChartDatum,
@@ -27,9 +27,10 @@ type Props = {
   response: VisualizationApiResponse | null;
   citationLimit: number;
   loading?: boolean;
+  isLiveMode?: boolean;
 };
 
-export function VisualizationPanel({ response, citationLimit, loading }: Props) {
+export function VisualizationPanel({ response, citationLimit, loading, isLiveMode }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>("bar");
   const [mapState, setMapState] = useState<MapState>(
     isWorldMapRegistered() ? "ready" : "idle",
@@ -152,10 +153,20 @@ export function VisualizationPanel({ response, citationLimit, loading }: Props) 
   if (!response) {
     return (
       <section className="viz-panel viz-panel--empty" aria-live="polite">
-        <p>
-          Select an example below and click <strong>Submit</strong> to fetch live data from
-          ClinicalTrials.gov.
-        </p>
+        {isLiveMode ? (
+          <>
+            <svg className="viz-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <p>Query ready. Click <strong>Submit</strong> to run a live query against ClinicalTrials.gov.</p>
+          </>
+        ) : (
+          <p>
+            Select an example below and click <strong>Submit</strong> to fetch live data from
+            ClinicalTrials.gov.
+          </p>
+        )}
       </section>
     );
   }
@@ -271,7 +282,7 @@ export function VisualizationPanel({ response, citationLimit, loading }: Props) 
                     <span className="citation-title">{item.brief_title ?? "Untitled study"}</span>
                   </div>
                   <div className="citation-meta">
-                    <code className="citation-field">{item.field}</code>
+                    <span className="citation-field">{formatFieldPath(item.field)}</span>
                     <span className="citation-value">{String(item.value)}</span>
                   </div>
                 </li>

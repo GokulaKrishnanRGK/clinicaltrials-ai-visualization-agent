@@ -1,12 +1,20 @@
 .app-shell {
   padding: 14px 16px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 .dashboard {
+  flex: 1;
   width: min(1440px, 100%);
   margin: 0 auto;
   display: grid;
   gap: 10px;
+  /* header auto-sizes; content row claims all remaining height */
+  grid-template-rows: auto 1fr;
+  min-height: 0;
 }
 
 .content-grid {
@@ -14,6 +22,7 @@
   grid-template-columns: 280px 1fr;
   gap: 10px;
   align-items: stretch;
+  min-height: 0;
 }
 
 /* Left column is a flex column so ExamplesPanel can fill the remaining height */

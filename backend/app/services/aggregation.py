@@ -68,9 +68,10 @@ def count_by_year(
 def count_by_country(
     records: list[NormalizedTrialRecord],
     *,
+    top_n: int = 20,
     citation_limit: int = 10,
 ) -> list[dict[str, Any]]:
-    """Count trials by country, sorted descending by count."""
+    """Count trials by country, top N descending."""
     buckets: dict[str, list[NormalizedTrialRecord]] = defaultdict(list)
     for record in records:
         seen: set[str] = set()
@@ -84,7 +85,7 @@ def count_by_country(
             "trial_count": len(recs),
             "citations": [c.model_dump() for c in _citations(recs, "countries", citation_limit)],
         }
-        for country, recs in sorted(buckets.items(), key=lambda x: -len(x[1]))
+        for country, recs in sorted(buckets.items(), key=lambda x: -len(x[1]))[:top_n]
     ]
 
 

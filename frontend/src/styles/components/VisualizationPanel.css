@@ -29,6 +29,13 @@
   color: var(--text-1);
 }
 
+.viz-empty-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--accent);
+  opacity: 0.7;
+}
+
 .viz-loader {
   width: 36px;
   height: 36px;
@@ -301,8 +308,10 @@
 }
 
 .citation-field {
-  font-size: 0.7rem;
-  font-family: monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   opacity: 0.65;
 }
 

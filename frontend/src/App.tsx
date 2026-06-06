@@ -23,6 +23,7 @@ export function App() {
   const [previewResponse, setPreviewResponse] = useState<VisualizationApiResponse | null>(
     localExamples[0].response,
   );
+  const [isLiveMode, setIsLiveMode] = useState(false);
 
   const stream = useVisualizationStream();
 
@@ -45,6 +46,14 @@ export function App() {
     setMaxRecords(example.request.max_records);
     stream.reset();
     setPreviewResponse(mode === "cache" ? example.response : null);
+  };
+
+  const handleModeChange = (mode: "cache" | "live") => {
+    setIsLiveMode(mode === "live");
+    if (mode === "live") {
+      setPreviewResponse(null);
+      stream.reset();
+    }
   };
 
   const handleThemeToggle = () => {
@@ -89,6 +98,7 @@ export function App() {
               examples={localExamples}
               selectedId={selectedId}
               onSelect={handleSelectExample}
+              onModeChange={handleModeChange}
             />
           </div>
 
@@ -96,6 +106,7 @@ export function App() {
             response={response}
             citationLimit={citationLimit}
             loading={loading}
+            isLiveMode={isLiveMode}
           />
         </div>
 

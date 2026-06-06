@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.graph.nodes._helpers import build_meta, intent_from_state
+from app.graph.nodes._helpers import _truncate, build_meta, intent_from_state
 from app.graph.state import GraphState
 from app.logging_config import get_logger
 from app.schemas.responses import VisualizationMessageResponse
@@ -52,8 +52,12 @@ async def interpret_question(state: GraphState) -> dict[str, Any]:
             def _coerce_null_lists(cls, data: object) -> object:
                 if isinstance(data, dict):
                     for key in ("assumptions", "warnings"):
-                        if data.get(key) is None:
+                        val = data.get(key)
+                        if val is None:
                             data[key] = []
+                        elif isinstance(val, str):
+                            # LLM sometimes puts prose in these fields; wrap it
+                            data[key] = [val] if val.strip() else []
                 return data
 
         client = LLMClient()
@@ -97,12 +101,14 @@ async def interpret_question(state: GraphState) -> dict[str, Any]:
         }
         parts = [f"{_KEY_LABELS.get(k, k)}: {v}" for k, v in active_filters.items() if k in _KEY_LABELS]
         node_summary = " · ".join(parts[:4]) if parts else "no filters extracted"
-        return {
+        result = {
             "interpreted": interpreted,
             "assumptions": parsed.assumptions,
             "warnings": parsed.warnings,
             "node_summary": node_summary,
         }
+        logger.info("interpret_question output request_id=%s result=%s", rid, _truncate(result))
+        return result
     except Exception as exc:
         logger.warning(
             "interpret_question failed request_id=%s error=%s — falling back to raw state",
@@ -111,8 +117,28 @@ async def interpret_question(state: GraphState) -> dict[str, Any]:
             exc_info=True,
         )
         fallback = intent_from_state(state)
-        active = {k: v for k, v in fallback.items() if v is not None}
+        _CLINICAL_FIELDS = {"drug_name", "drug_name_2", "condition", "trial_phase",
+                            "sponsor", "country", "status", "start_year", "end_year"}
+        active = {k: v for k, v in fallback.items() if v is not None and k in _CLINICAL_FIELDS}
         logger.info("interpret_question fallback request_id=%s fields=%s", rid, active)
+
+        # If the LLM failed and the request carries no clinical-trial context at all,
+        # return an unsupported-query message rather than blindly calling the API.
+        if not active:
+            logger.info("interpret_question fallback no_context request_id=%s — out of scope", rid)
+            meta = build_meta(state, records_retrieved=0, records_used=0)
+            msg = VisualizationMessageResponse(
+                request_id=state["request_id"],
+                message=_OUT_OF_SCOPE_MESSAGE,
+                reason="unsupported_query",
+                suggested_queries=_SUGGESTED_QUERIES,
+                meta=meta,
+            )
+            return {
+                "final_response": msg.model_dump(mode="json"),
+                "node_summary": "Parse failed — no clinical context",
+            }
+
         return {
             "interpreted": fallback,
             "assumptions": [],

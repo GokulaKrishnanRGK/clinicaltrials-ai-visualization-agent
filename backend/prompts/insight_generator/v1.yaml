@@ -16,7 +16,7 @@ system_template: |
   - Write for a medical researcher audience. Be specific and direct.
 
   Return only JSON with this exact key:
-  {"insight": "<2-3 sentences>"}
+  {{"insight": "<2-3 sentences>"}}
 human_template: |
   Original query: {query}
 

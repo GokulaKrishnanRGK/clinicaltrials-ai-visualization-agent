@@ -24,6 +24,13 @@ function getField<T extends string | number>(datum: ChartDatum, field: string, f
   return typeof value === typeof fallback ? (value as T) : fallback;
 }
 
+function xAxisLabel(itemCount: number) {
+  const rotate = itemCount > 16 ? 55 : itemCount > 8 ? 38 : 0;
+  const bottom = itemCount > 16 ? 105 : itemCount > 8 ? 85 : 56;
+  const fontSize = itemCount > 20 ? 10 : 12;
+  return { rotate, bottom, axisLabel: { interval: 0, rotate, fontSize } };
+}
+
 export function choroplethOption(visualization: ChartVisualizationSpec): EChartsOption {
   const xField = visualization.encoding.x;
   const yField = visualization.encoding.y;
@@ -207,13 +214,14 @@ export function chartOption(visualization: VisualizationSpec): EChartsOption {
     const groups = Array.from(
       new Set(visualization.data.map((datum) => getField(datum, groupField, ""))),
     );
+    const lbl = xAxisLabel(categories.length);
 
     return {
       color: CHART_COLORS,
       tooltip: { trigger: "axis" },
       legend: hints?.legend === false ? undefined : { top: 0 },
-      grid: { top: 52, right: 24, bottom: 56, left: 64 },
-      xAxis: { type: "category", name: hints?.x_axis_label, data: categories },
+      grid: { top: 52, right: 24, bottom: lbl.bottom, left: 64 },
+      xAxis: { type: "category", name: hints?.x_axis_label, data: categories, axisLabel: lbl.axisLabel },
       yAxis: { type: "value", name: hints?.y_axis_label },
       series: groups.map((group) => ({
         type: "bar",
@@ -230,11 +238,13 @@ export function chartOption(visualization: VisualizationSpec): EChartsOption {
     };
   }
 
+  const lbl = xAxisLabel(visualization.data.length);
+
   return {
     color: CHART_COLORS,
     tooltip: { trigger: "axis" },
     legend: { top: 0 },
-    grid: { top: 52, right: 24, bottom: 56, left: 64 },
+    grid: { top: 52, right: 24, bottom: lbl.bottom, left: 64 },
     xAxis: {
       type: "category",
       name: hints?.x_axis_label,
@@ -242,6 +252,7 @@ export function chartOption(visualization: VisualizationSpec): EChartsOption {
         const v = datum[xField];
         return v !== null && v !== undefined && !Array.isArray(v) ? String(v) : "";
       }),
+      axisLabel: lbl.axisLabel,
     },
     yAxis: { type: "value", name: hints?.y_axis_label },
     series: [

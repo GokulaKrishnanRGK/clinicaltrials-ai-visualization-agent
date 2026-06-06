@@ -1,10 +1,20 @@
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 from typing import Any
 
 from app.graph.state import GraphState
 from app.schemas.responses import ResponseMetadata
+
+
+def _truncate(obj: Any, limit: int = 500) -> str:
+    """Serialize obj to JSON and truncate to limit characters for log lines."""
+    try:
+        text = json.dumps(obj, default=str, ensure_ascii=False)
+    except Exception:
+        text = str(obj)
+    return text[:limit] + "…" if len(text) > limit else text
 
 
 def build_meta(state: GraphState, *, records_retrieved: int, records_used: int) -> ResponseMetadata:

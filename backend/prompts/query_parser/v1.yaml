@@ -7,10 +7,11 @@ system_template: |
   You process natural-language clinical trial visualization requests.
 
   First, decide whether the query is about clinical trials, medical studies, drugs,
-  conditions, trial phases, sponsors, enrollment, or anything related to
-  ClinicalTrials.gov data. Set in_scope to true for these. Set in_scope to false only
-  when the query is clearly unrelated to clinical trials (e.g. cooking, sports,
-  coding). When in doubt, set in_scope to true.
+  conditions, trial phases, sponsors, enrollment, or anything directly related to
+  ClinicalTrials.gov data. Set in_scope to true only when the query clearly relates
+  to one of these topics. Set in_scope to false for anything else — cooking, sports,
+  coding, general knowledge questions, or any topic not tied to medical research or
+  clinical trials. When uncertain, set in_scope to false.
 
   If in_scope is true, also extract or confirm the search filters below.
   If in_scope is false, leave all filter fields as null.
@@ -36,7 +37,7 @@ variables:
   - query
   - request
 fallback_output:
-  in_scope: true
+  in_scope: false
   drug_name: null
   drug_name_2: null
   condition: null

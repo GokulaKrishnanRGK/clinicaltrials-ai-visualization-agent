@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import "../styles/components/CitationPanel.css";
+import { formatFieldPath } from "../contractUtils";
 import type { SourceCitation } from "../types";
 
 type Props = {
@@ -56,7 +57,7 @@ export function CitationPanel({ label, citations, citationLimit, onClose }: Prop
                     {c.brief_title && <span className="cp-brief">{c.brief_title}</span>}
                   </div>
                   <div className="cp-meta">
-                    <code className="cp-field">{c.field}</code>
+                    <span className="cp-field">{formatFieldPath(c.field)}</span>
                     <span className="cp-value">{String(c.value)}</span>
                   </div>
                 </li>

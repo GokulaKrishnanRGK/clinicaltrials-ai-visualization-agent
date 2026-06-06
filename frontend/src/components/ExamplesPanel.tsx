@@ -29,11 +29,17 @@ type Props = {
   examples: Example[];
   selectedId: string;
   onSelect: (example: Example, mode: Mode) => void;
+  onModeChange: (mode: Mode) => void;
 };
 
-export function ExamplesPanel({ examples, selectedId, onSelect }: Props) {
+export function ExamplesPanel({ examples, selectedId, onSelect, onModeChange }: Props) {
   const [mode, setMode] = useState<Mode>("cache");
   const [activeCategory, setActiveCategory] = useState<ExampleCategory>("bar");
+
+  function handleModeChange(next: Mode) {
+    setMode(next);
+    onModeChange(next);
+  }
 
   const filtered = examples.filter((e) => e.category === activeCategory);
 
@@ -44,14 +50,14 @@ export function ExamplesPanel({ examples, selectedId, onSelect }: Props) {
         <div className="mode-toggle" role="group" aria-label="Response mode">
           <button
             className={`mode-btn${mode === "cache" ? " active" : ""}`}
-            onClick={() => setMode("cache")}
+            onClick={() => handleModeChange("cache")}
             aria-pressed={mode === "cache"}
           >
             Cache
           </button>
           <button
             className={`mode-btn${mode === "live" ? " active" : ""}`}
-            onClick={() => setMode("live")}
+            onClick={() => handleModeChange("live")}
             aria-pressed={mode === "live"}
           >
             Live

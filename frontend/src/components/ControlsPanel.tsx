@@ -1,7 +1,7 @@
 import "../styles/components/ControlsPanel.css";
 
 const CITATION_OPTIONS = [0, 3, 5, 10, 15, 20, 25];
-const MAX_RECORDS_OPTIONS = [50, 100, 200, 500, 1000];
+const MAX_RECORDS_OPTIONS = [50, 100, 200, 500];
 
 type ControlsPanelProps = {
   query: string;

@@ -60,7 +60,13 @@ class StudyStatus(StrEnum):
 
 STUDY_STATUS_ALIASES: dict[str, StudyStatus] = {
     _normalize_key(status.name): status for status in StudyStatus
-} | {_normalize_key(status.value): status for status in StudyStatus}
+} | {_normalize_key(status.value): status for status in StudyStatus} | {
+    # Common LLM mistakes — map "active" to ACTIVE_NOT_RECRUITING (closest match)
+    "active": StudyStatus.ACTIVE_NOT_RECRUITING,
+    "open": StudyStatus.RECRUITING,
+    "closed": StudyStatus.COMPLETED,
+    "ongoing": StudyStatus.ACTIVE_NOT_RECRUITING,
+}
 
 
 class VisualizationType(StrEnum):

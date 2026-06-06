@@ -23,7 +23,7 @@ class TrialLocation(BaseModel):
 
 
 class NormalizedTrialRecord(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
     nct_id: str = Field(..., min_length=1)
     brief_title: str | None = None

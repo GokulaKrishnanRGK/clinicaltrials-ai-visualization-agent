@@ -36,7 +36,7 @@ export const examples: Example[] = [
       query: "Which countries have the most oncology trials? Show the top 20 countries.",
       condition: "Neoplasms",
       preferred_visualization: "bar_chart",
-      max_records: 1000,
+      max_records: 500,
       citation_limit: 5,
     },
     response: {

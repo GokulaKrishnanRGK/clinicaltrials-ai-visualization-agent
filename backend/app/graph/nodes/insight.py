@@ -84,5 +84,5 @@ async def generate_insight(state: GraphState) -> dict[str, Any]:
     if not insight:
         return {"node_summary": "Skipped — empty response"}
 
-    logger.info("generate_insight ok request_id=%s chars=%d", rid, len(insight))
+    logger.info("generate_insight ok request_id=%s chars=%d insight=%r", rid, len(insight), insight[:300])
     return {"final_response": {**final, "insight": insight}, "node_summary": f"Insight ({len(insight)} chars)"}

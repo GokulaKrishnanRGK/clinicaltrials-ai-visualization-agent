@@ -52,6 +52,8 @@ class LLMClient:
         resolved_model = model or prompt.model_preference or self.model
         logger.debug("llm_call prompt=%s model=%s", prompt_id, resolved_model)
 
+        messages = _apply_cache_control([m.model_dump() for m in prompt.messages])
+
         # One initial attempt + one repair retry (spec §17.2).
         last_error: LLMClientError | None = None
         for attempt in range(2):
@@ -60,19 +62,25 @@ class LLMClient:
 
             response = await self.completion_fn(
                 model=resolved_model,
-                messages=[message.model_dump() for message in prompt.messages],
+                messages=messages,
                 temperature=self.temperature if temperature is None else temperature,
                 max_tokens=self.max_tokens if max_tokens is None else max_tokens,
                 response_format={"type": "json_object"},
             )
             content = self._extract_content(response)
-            usage = getattr(getattr(response, "usage", None), "total_tokens", None)
-            logger.debug(
-                "llm_response prompt=%s attempt=%d tokens=%s content_len=%d",
+
+            usage = getattr(response, "usage", None)
+            total = getattr(usage, "total_tokens", None)
+            cache_read = getattr(usage, "_cache_read_input_tokens", 0) or 0
+            cache_write = getattr(usage, "_cache_creation_input_tokens", 0) or 0
+            truncated = content[:500] + "…" if len(content) > 500 else content
+            logger.info(
+                "llm_response prompt=%s tokens=%s cache_read=%d cache_write=%d content=%s",
                 prompt_id,
-                attempt,
-                usage,
-                len(content),
+                total,
+                cache_read,
+                cache_write,
+                truncated,
             )
 
             try:
@@ -107,6 +115,35 @@ class LLMClient:
     @staticmethod
     def _response_model_name(response_model: Any) -> str:
         return getattr(response_model, "__name__", repr(response_model))
+
+
+def _apply_cache_control(messages: list[dict]) -> list[dict]:
+    """Wrap system message content in an ephemeral cache block.
+
+    The system template is identical on every request for a given prompt, so
+    marking it as cacheable lets the provider skip re-processing it.  The human
+    template changes with each query and is left uncached.
+
+    LiteLLM translates cache_control → cachePoint for the Bedrock Converse API
+    and leaves it as-is for the direct Anthropic API — no provider-specific
+    branching needed here.
+    """
+    result = []
+    for msg in messages:
+        if msg["role"] == "system" and isinstance(msg.get("content"), str):
+            result.append({
+                "role": "system",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": msg["content"],
+                        "cache_control": {"type": "ephemeral"},
+                    }
+                ],
+            })
+        else:
+            result.append(msg)
+    return result
 
 
 def _strip_code_fence(text: str) -> str:

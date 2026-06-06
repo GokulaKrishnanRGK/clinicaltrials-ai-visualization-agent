@@ -157,8 +157,10 @@
 }
 
 .cp-field {
-  font-size: 0.7rem;
-  font-family: monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   color: var(--text-3);
 }
 

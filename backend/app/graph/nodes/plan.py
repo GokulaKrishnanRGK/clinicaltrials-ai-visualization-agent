@@ -3,10 +3,11 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from app.graph.nodes._helpers import intent_from_state
+from app.graph.nodes._helpers import _truncate, intent_from_state
 from app.graph.state import GraphState
 from app.logging_config import get_logger
 from app.schemas.plan import AGG_TYPES, FetchSpec, RetrievalPlan
+from app.services.clinical_trials.capabilities import build_capabilities_text
 
 logger = get_logger(__name__)
 
@@ -48,6 +49,7 @@ async def plan_tool_calls(state: GraphState) -> dict[str, Any]:
                 "query": state["query"],
                 "intent": json.dumps(active_intent),
                 "max_records": state["max_records"],
+                "capabilities": build_capabilities_text(),
             },
         )
 
@@ -66,14 +68,14 @@ async def plan_tool_calls(state: GraphState) -> dict[str, Any]:
         return {"retrieval_plan": _fallback_plan(state), "node_summary": "Plan failed — single-call fallback"}
 
     plan_dict = plan.model_dump()
+    labels = [c.label for c in plan.calls]
+    node_summary = f"{len(labels)} call(s): {', '.join(labels[:3])} · agg: {plan.agg_type}"
+    result = {"retrieval_plan": plan_dict, "node_summary": node_summary}
     logger.info(
-        "plan_tool_calls complete request_id=%s calls=%d agg_type=%s labels=%s",
+        "plan_tool_calls output request_id=%s calls=%d agg_type=%s result=%s",
         rid,
         len(plan.calls),
         plan.agg_type,
-        [c.label for c in plan.calls],
+        _truncate(result),
     )
-    logger.debug("plan_tool_calls output request_id=%s plan=%s", rid, plan_dict)
-    labels = [c.label for c in plan.calls]
-    node_summary = f"{len(labels)} call(s): {', '.join(labels[:3])} · agg: {plan.agg_type}"
-    return {"retrieval_plan": plan_dict, "node_summary": node_summary}
+    return result

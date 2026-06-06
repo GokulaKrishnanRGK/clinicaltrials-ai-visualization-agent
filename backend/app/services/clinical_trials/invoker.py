@@ -8,6 +8,7 @@ from app.logging_config import get_logger
 from app.schemas.clinical_trials import NormalizedTrialRecord
 from app.schemas.requests import VisualizationRequest
 from app.schemas.responses import ResponseMetadata
+from app.schemas.enums import STUDY_STATUS_ALIASES, TRIAL_PHASE_ALIASES
 from app.services.clinical_trials.client import ClinicalTrialsApiError, ClinicalTrialsGovClient
 from app.services.clinical_trials.normalizer import normalize_study
 
@@ -134,7 +135,9 @@ class ClinicalTrialsToolInvoker:
         if "country" in filters:
             params["query.locn"] = str(filters["country"])
         if "status" in filters:
-            params["filter.overallStatus"] = str(filters["status"])
+            raw_status = str(filters["status"])
+            normalized = STUDY_STATUS_ALIASES.get(raw_status.strip().lower().replace("-", "_").replace(" ", "_"))
+            params["filter.overallStatus"] = normalized.value if normalized else raw_status
 
         advanced_filters = self._advanced_filters(filters)
         if advanced_filters:
@@ -145,7 +148,10 @@ class ClinicalTrialsToolInvoker:
     def _advanced_filters(self, filters: dict[str, str | int]) -> list[str]:
         advanced_filters: list[str] = []
         if "trial_phase" in filters:
-            advanced_filters.append(f"AREA[Phase]{filters['trial_phase']}")
+            raw_phase = str(filters["trial_phase"])
+            normalized = TRIAL_PHASE_ALIASES.get(raw_phase.strip().lower().replace("-", "_").replace(" ", "_"))
+            phase_value = normalized.value if normalized else raw_phase
+            advanced_filters.append(f"AREA[Phase]{phase_value}")
 
         start_year = filters.get("start_year")
         end_year = filters.get("end_year")
