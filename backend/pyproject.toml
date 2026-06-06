@@ -4,8 +4,15 @@ version = "0.1.0"
 description = "FastAPI backend for ClinicalTrials.gov query-to-visualization agent"
 requires-python = ">=3.12"
 dependencies = [
+    "boto3>=1.43.24",
     "fastapi>=0.115.0",
+    "httpx>=0.28.1",
+    "langgraph>=1.2.4",
+    "litellm>=1.87.1",
     "pydantic-settings>=2.6.0",
+    "pyyaml>=6.0.3",
+    "sse-starlette>=3.4.4",
+    "tenacity>=9.1.4",
     "uvicorn[standard]>=0.30.0",
 ]
 
