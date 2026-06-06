@@ -14,23 +14,6 @@
   flex-shrink: 0;
 }
 
-.header-metrics {
-  display: flex;
-  gap: 6px;
-}
-
-.header-metrics span {
-  display: inline-flex;
-  align-items: center;
-  height: 26px;
-  padding: 0 8px;
-  color: var(--pill-text);
-  background: var(--pill-bg);
-  border: 1px solid var(--pill-border);
-  border-radius: 5px;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
 
 .json-toggle {
   display: inline-flex;

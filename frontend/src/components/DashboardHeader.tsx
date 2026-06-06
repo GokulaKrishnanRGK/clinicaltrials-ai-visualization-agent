@@ -1,8 +1,6 @@
-import type { VisualizationApiResponse } from "../types";
 import "../styles/components/DashboardHeader.css";
 
 type DashboardHeaderProps = {
-  response: VisualizationApiResponse;
   theme: "dark" | "light";
   showJson: boolean;
   onThemeToggle: () => void;
@@ -78,7 +76,6 @@ function BracesIcon() {
 }
 
 export function DashboardHeader({
-  response,
   theme,
   showJson,
   onThemeToggle,
@@ -88,13 +85,6 @@ export function DashboardHeader({
     <header className="dashboard-header">
       <h1>Clinical Trials Dashboard</h1>
       <div className="header-right">
-        <div className="header-metrics" aria-label="Current response summary">
-          <span>{response.status}</span>
-          <span>
-            {response.status === "visualization" ? response.visualization.type : response.reason}
-          </span>
-        </div>
-
         <button
           className="json-toggle"
           aria-pressed={showJson}
@@ -102,7 +92,7 @@ export function DashboardHeader({
           title={showJson ? "Hide JSON panels" : "Show JSON panels"}
         >
           <BracesIcon />
-          JSON
+          Show JSON
         </button>
 
         <button

@@ -8,10 +8,6 @@
 }
 
 .chart-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: start;
   margin-bottom: 6px;
 }
 
@@ -19,22 +15,13 @@
   margin-bottom: 0;
 }
 
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 0 8px;
-  color: var(--pill-text);
-  background: var(--pill-bg);
-  border: 1px solid var(--pill-border);
-  border-radius: 5px;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
 .chart {
   width: 100%;
   height: 300px;
+}
+
+.chart--network {
+  height: 480px;
 }
 
 .chart-empty {
@@ -55,14 +42,67 @@
   margin-top: 8px;
 }
 
+.citation-list h3 {
+  margin-bottom: 8px;
+}
+
 .citation-list ul {
   display: grid;
   gap: 6px;
   margin: 0;
-  padding-left: 16px;
+  padding: 0;
+  list-style: none;
 }
 
-.citation-list li {
+.citation-item {
+  padding: 8px 10px;
+  background: color-mix(in srgb, var(--border) 30%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 6px;
   display: grid;
-  gap: 2px;
+  gap: 4px;
+}
+
+.citation-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.citation-nct {
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: monospace;
+  color: #3b82f6;
+  background: color-mix(in srgb, #3b82f6 12%, transparent);
+  border: 1px solid color-mix(in srgb, #3b82f6 28%, transparent);
+  border-radius: 4px;
+  padding: 1px 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.citation-title {
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.citation-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.citation-field {
+  font-size: 0.7rem;
+  font-family: monospace;
+  opacity: 0.65;
+}
+
+.citation-value {
+  font-size: 0.74rem;
+  opacity: 0.7;
 }

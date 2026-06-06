@@ -68,7 +68,6 @@ export type VisualizationSpec = ChartVisualizationSpec | NetworkVisualizationSpe
 
 export type ResponseMetadata = {
   source: "clinicaltrials.gov";
-  data_mode: "cache" | "live";
   filters: Record<string, string | number>;
   records_retrieved: number;
   records_used: number;
@@ -114,7 +113,6 @@ export type VisualizationRequest = {
   end_year?: number;
   max_records: number;
   preferred_visualization?: VisualizationType;
-  data_mode: "cache" | "live";
   citation_limit: number;
 };
 

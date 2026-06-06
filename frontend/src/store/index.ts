@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import { clinicalTrialsApi } from "./api/clinicalTrialsApi";
+import { clinicalTrialsApi } from "./clinicalTrialsApi";
 
 export const store = configureStore({
   reducer: {

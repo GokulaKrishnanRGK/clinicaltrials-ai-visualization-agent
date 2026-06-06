@@ -1,21 +1,4 @@
-import type { SourceCitation, VisualizationApiResponse, VisualizationRequest } from "./types";
-
-export function responseWithMode(
-  response: VisualizationApiResponse,
-  dataMode: VisualizationRequest["data_mode"],
-): VisualizationApiResponse {
-  if (!response.meta) {
-    return response;
-  }
-
-  return {
-    ...response,
-    meta: {
-      ...response.meta,
-      data_mode: dataMode,
-    },
-  };
-}
+import type { SourceCitation, VisualizationApiResponse } from "./types";
 
 export function collectCitations(response: VisualizationApiResponse): SourceCitation[] {
   if (response.status !== "visualization") {

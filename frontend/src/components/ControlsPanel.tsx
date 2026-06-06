@@ -3,16 +3,16 @@ import "../styles/components/ControlsPanel.css";
 
 type ExampleOption = { id: string; label: string };
 
+const CITATION_OPTIONS = [0, 3, 5, 10, 25];
+
 type ControlsPanelProps = {
   examples: ExampleOption[];
   selectedId: string;
   query: string;
-  dataMode: VisualizationRequest["data_mode"];
   citationLimit: number;
   isSubmitting: boolean;
   onExampleChange: (exampleId: string) => void;
   onQueryChange: (query: string) => void;
-  onDataModeChange: (dataMode: VisualizationRequest["data_mode"]) => void;
   onCitationLimitChange: (citationLimit: number) => void;
   onSubmit: () => void;
 };
@@ -21,12 +21,10 @@ export function ControlsPanel({
   examples,
   selectedId,
   query,
-  dataMode,
   citationLimit,
   isSubmitting,
   onExampleChange,
   onQueryChange,
-  onDataModeChange,
   onCitationLimitChange,
   onSubmit,
 }: ControlsPanelProps) {
@@ -58,39 +56,19 @@ export function ControlsPanel({
           </select>
         </div>
 
-        <fieldset className="segmented-control">
-          <legend>Data mode</legend>
-          <label>
-            <input
-              type="radio"
-              name="data-mode"
-              checked={dataMode === "cache"}
-              onChange={() => onDataModeChange("cache")}
-            />
-            Cache
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="data-mode"
-              checked={dataMode === "live"}
-              onChange={() => onDataModeChange("live")}
-            />
-            Live
-          </label>
-        </fieldset>
-
-        <div className="field citation-control">
+        <div className="field">
           <label htmlFor="citation-limit">Citation limit</label>
-          <input
+          <select
             id="citation-limit"
-            type="range"
-            min="0"
-            max="25"
             value={citationLimit}
             onChange={(event) => onCitationLimitChange(Number(event.target.value))}
-          />
-          <output htmlFor="citation-limit">{citationLimit}</output>
+          >
+            {CITATION_OPTIONS.map((n) => (
+              <option value={n} key={n}>
+                {n === 0 ? "None" : n}
+              </option>
+            ))}
+          </select>
         </div>
 
         <button className="submit-btn" onClick={onSubmit} disabled={isSubmitting}>

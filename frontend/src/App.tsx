@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { useGetExamplesQuery } from "./api/clinicalTrialsApi";
+import { useGetExamplesQuery } from "./store/clinicalTrialsApi";
 import { useVisualizationStream } from "./api/useVisualizationStream";
 import { ChartSurface } from "./components/ChartSurface";
 import { ControlsPanel } from "./components/ControlsPanel";
@@ -8,7 +8,6 @@ import { DashboardHeader } from "./components/DashboardHeader";
 import { JsonPanel } from "./components/JsonPanel";
 import { MetadataPanel } from "./components/MetadataPanel";
 import { NodeTimeline } from "./components/NodeTimeline";
-import { responseWithMode } from "./contractUtils";
 import { examples as localExamples } from "./data/contractExamples";
 import "./styles/app.css";
 import type { VisualizationRequest } from "./types";
@@ -20,9 +19,6 @@ export function App() {
   const [showJson, setShowJson] = useState(false);
   const [selectedId, setSelectedId] = useState(localExamples[0].id);
   const [query, setQuery] = useState(localExamples[0].request.query);
-  const [dataMode, setDataMode] = useState<VisualizationRequest["data_mode"]>(
-    localExamples[0].request.data_mode,
-  );
   const [citationLimit, setCitationLimit] = useState(localExamples[0].request.citation_limit);
 
   const { data: remoteExamples } = useGetExamplesQuery();
@@ -39,16 +35,12 @@ export function App() {
     () => ({
       ...selectedLocal.request,
       query,
-      data_mode: dataMode,
       citation_limit: citationLimit,
     }),
-    [citationLimit, dataMode, query, selectedLocal.request],
+    [citationLimit, query, selectedLocal.request],
   );
 
-  const exampleResponse = useMemo(
-    () => responseWithMode(selectedLocal.response, dataMode),
-    [dataMode, selectedLocal.response],
-  );
+  const exampleResponse = selectedLocal.response;
 
   const response = stream.finalResponse ?? exampleResponse;
   const showTimeline = stream.streaming || stream.nodes.length > 0;
@@ -57,7 +49,6 @@ export function App() {
     const next = localExamples.find((e) => e.id === exampleId) ?? localExamples[0];
     setSelectedId(next.id);
     setQuery(next.request.query);
-    setDataMode(next.request.data_mode);
     setCitationLimit(next.request.citation_limit);
     stream.reset();
   };
@@ -66,7 +57,6 @@ export function App() {
     <main className="app-shell">
       <section className="dashboard">
         <DashboardHeader
-          response={response}
           theme={theme}
           showJson={showJson}
           onThemeToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
@@ -79,12 +69,10 @@ export function App() {
               examples={pickerExamples}
               selectedId={selectedId}
               query={query}
-              dataMode={dataMode}
               citationLimit={citationLimit}
               isSubmitting={stream.streaming}
               onExampleChange={selectExample}
               onQueryChange={setQuery}
-              onDataModeChange={setDataMode}
               onCitationLimitChange={setCitationLimit}
               onSubmit={() => stream.submit(request)}
             />

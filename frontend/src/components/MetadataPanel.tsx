@@ -38,18 +38,10 @@ export function MetadataPanel({ response }: MetadataPanelProps) {
       <h2>Metadata</h2>
       <dl>
         <div>
-          <dt>Mode</dt>
-          <dd>{meta.data_mode}</dd>
-        </div>
-        <div>
           <dt>Records</dt>
           <dd>
             {meta.records_used} used / {meta.records_retrieved} retrieved
           </dd>
-        </div>
-        <div>
-          <dt>Source</dt>
-          <dd>{meta.source}</dd>
         </div>
         <div>
           <dt>Generated</dt>
