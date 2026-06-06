@@ -1,0 +1,84 @@
+{
+  "status": "visualization",
+  "request_id": "fixture-pembrolizumab-trials-by-year",
+  "visualization": {
+    "type": "time_series",
+    "title": "Pembrolizumab Trials by Start Year",
+    "description": "Cached sample of Pembrolizumab trial starts grouped by start year.",
+    "encoding": {
+      "x": "start_year",
+      "y": "trial_count"
+    },
+    "render_hints": {
+      "x_axis_label": "Start year",
+      "y_axis_label": "Trials",
+      "series_name": "Pembrolizumab trials",
+      "category_field": "start_year",
+      "value_field": "trial_count",
+      "tooltip_fields": [
+        "start_year",
+        "trial_count"
+      ],
+      "sort": "chronological",
+      "legend": false
+    },
+    "data": [
+      {
+        "start_year": 2019,
+        "trial_count": 1,
+        "citations": [
+          {
+            "nct_id": "NCT03665597",
+            "field": "protocolSection.statusModule.startDateStruct.date",
+            "value": "2019-02-06",
+            "excerpt": "startDateStruct.date=2019-02-06; interventionName=Pembrolizumab",
+            "brief_title": "Pembrolizumab and chemotherapy in advanced cancer"
+          }
+        ]
+      },
+      {
+        "start_year": 2020,
+        "trial_count": 1,
+        "citations": [
+          {
+            "nct_id": "NCT04380636",
+            "field": "protocolSection.statusModule.startDateStruct.date",
+            "value": "2020-05-11",
+            "excerpt": "startDateStruct.date=2020-05-11; interventionName=Pembrolizumab",
+            "brief_title": "Pembrolizumab for solid tumors"
+          }
+        ]
+      },
+      {
+        "start_year": 2021,
+        "trial_count": 1,
+        "citations": [
+          {
+            "nct_id": "NCT04736704",
+            "field": "protocolSection.statusModule.startDateStruct.date",
+            "value": "2021-03-15",
+            "excerpt": "startDateStruct.date=2021-03-15; interventionName=Pembrolizumab",
+            "brief_title": "Pembrolizumab combination study"
+          }
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "source": "clinicaltrials.gov",
+    "data_mode": "cache",
+    "filters": {
+      "drug_name": "Pembrolizumab",
+      "start_year": 2015
+    },
+    "records_retrieved": 3,
+    "records_used": 3,
+    "generated_at": "2026-06-06T00:00:00Z"
+  },
+  "warnings": [
+    "Cached fixture contains representative records for offline development."
+  ],
+  "assumptions": [
+    "Counts are fixture aggregates, not a live ClinicalTrials.gov total."
+  ]
+}

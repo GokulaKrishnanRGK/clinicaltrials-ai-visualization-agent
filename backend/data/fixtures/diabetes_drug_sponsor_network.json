@@ -1,0 +1,190 @@
+{
+  "status": "visualization",
+  "request_id": "fixture-diabetes-drug-sponsor-network",
+  "visualization": {
+    "type": "network_graph",
+    "title": "Diabetes Drug and Sponsor Network",
+    "description": "Cached network connecting diabetes interventions to sponsors and fixture studies.",
+    "encoding": {
+      "node_id": "id",
+      "node_label": "label",
+      "edge_source": "source",
+      "edge_target": "target",
+      "edge_weight": "weight"
+    },
+    "render_hints": {
+      "series_name": "Study relationships",
+      "tooltip_fields": [
+        "label",
+        "type",
+        "value"
+      ],
+      "legend": true
+    },
+    "data": {
+      "nodes": [
+        {
+          "id": "drug_semaglutide",
+          "label": "Semaglutide",
+          "type": "drug",
+          "value": 1,
+          "citations": [
+            {
+              "nct_id": "NCT05394476",
+              "field": "protocolSection.armsInterventionsModule.interventions[].name",
+              "value": "Semaglutide",
+              "excerpt": "interventionName=Semaglutide; condition=Type 2 Diabetes",
+              "brief_title": "Semaglutide diabetes outcomes study"
+            }
+          ]
+        },
+        {
+          "id": "drug_tirzepatide",
+          "label": "Tirzepatide",
+          "type": "drug",
+          "value": 1,
+          "citations": [
+            {
+              "nct_id": "NCT05275333",
+              "field": "protocolSection.armsInterventionsModule.interventions[].name",
+              "value": "Tirzepatide",
+              "excerpt": "interventionName=Tirzepatide; condition=Type 2 Diabetes",
+              "brief_title": "Tirzepatide glycemic control study"
+            }
+          ]
+        },
+        {
+          "id": "sponsor_novo_nordisk",
+          "label": "Novo Nordisk",
+          "type": "sponsor",
+          "value": 1,
+          "citations": [
+            {
+              "nct_id": "NCT05394476",
+              "field": "protocolSection.sponsorCollaboratorsModule.leadSponsor.name",
+              "value": "Novo Nordisk",
+              "excerpt": "leadSponsor=Novo Nordisk; interventionName=Semaglutide",
+              "brief_title": "Semaglutide diabetes outcomes study"
+            }
+          ]
+        },
+        {
+          "id": "sponsor_eli_lilly",
+          "label": "Eli Lilly and Company",
+          "type": "sponsor",
+          "value": 1,
+          "citations": [
+            {
+              "nct_id": "NCT05275333",
+              "field": "protocolSection.sponsorCollaboratorsModule.leadSponsor.name",
+              "value": "Eli Lilly and Company",
+              "excerpt": "leadSponsor=Eli Lilly and Company; interventionName=Tirzepatide",
+              "brief_title": "Tirzepatide glycemic control study"
+            }
+          ]
+        },
+        {
+          "id": "condition_type_2_diabetes",
+          "label": "Type 2 Diabetes",
+          "type": "condition",
+          "value": 2,
+          "citations": [
+            {
+              "nct_id": "NCT05394476",
+              "field": "protocolSection.conditionsModule.conditions[]",
+              "value": "Type 2 Diabetes",
+              "excerpt": "condition=Type 2 Diabetes",
+              "brief_title": "Semaglutide diabetes outcomes study"
+            },
+            {
+              "nct_id": "NCT05275333",
+              "field": "protocolSection.conditionsModule.conditions[]",
+              "value": "Type 2 Diabetes",
+              "excerpt": "condition=Type 2 Diabetes",
+              "brief_title": "Tirzepatide glycemic control study"
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "source": "sponsor_novo_nordisk",
+          "target": "drug_semaglutide",
+          "weight": 1,
+          "relation": "sponsors",
+          "citations": [
+            {
+              "nct_id": "NCT05394476",
+              "field": "protocolSection.sponsorCollaboratorsModule.leadSponsor.name",
+              "value": "Novo Nordisk",
+              "excerpt": "Novo Nordisk sponsors study using Semaglutide",
+              "brief_title": "Semaglutide diabetes outcomes study"
+            }
+          ]
+        },
+        {
+          "source": "sponsor_eli_lilly",
+          "target": "drug_tirzepatide",
+          "weight": 1,
+          "relation": "sponsors",
+          "citations": [
+            {
+              "nct_id": "NCT05275333",
+              "field": "protocolSection.sponsorCollaboratorsModule.leadSponsor.name",
+              "value": "Eli Lilly and Company",
+              "excerpt": "Eli Lilly and Company sponsors study using Tirzepatide",
+              "brief_title": "Tirzepatide glycemic control study"
+            }
+          ]
+        },
+        {
+          "source": "drug_semaglutide",
+          "target": "condition_type_2_diabetes",
+          "weight": 1,
+          "relation": "studies",
+          "citations": [
+            {
+              "nct_id": "NCT05394476",
+              "field": "protocolSection.conditionsModule.conditions[]",
+              "value": "Type 2 Diabetes",
+              "excerpt": "Semaglutide study condition=Type 2 Diabetes",
+              "brief_title": "Semaglutide diabetes outcomes study"
+            }
+          ]
+        },
+        {
+          "source": "drug_tirzepatide",
+          "target": "condition_type_2_diabetes",
+          "weight": 1,
+          "relation": "studies",
+          "citations": [
+            {
+              "nct_id": "NCT05275333",
+              "field": "protocolSection.conditionsModule.conditions[]",
+              "value": "Type 2 Diabetes",
+              "excerpt": "Tirzepatide study condition=Type 2 Diabetes",
+              "brief_title": "Tirzepatide glycemic control study"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "meta": {
+    "source": "clinicaltrials.gov",
+    "data_mode": "cache",
+    "filters": {
+      "condition": "Type 2 Diabetes",
+      "preferred_visualization": "network_graph"
+    },
+    "records_retrieved": 2,
+    "records_used": 2,
+    "generated_at": "2026-06-06T00:00:00Z"
+  },
+  "warnings": [
+    "Cached fixture contains representative records for offline development."
+  ],
+  "assumptions": [
+    "Edges are derived from lead sponsor, intervention name, and condition fields in each fixture record."
+  ]
+}

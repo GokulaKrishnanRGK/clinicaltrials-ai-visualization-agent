@@ -1,0 +1,84 @@
+{
+  "status": "visualization",
+  "request_id": "fixture-phase3-breast-cancer-sponsors",
+  "visualization": {
+    "type": "bar_chart",
+    "title": "Phase 3 Breast Cancer Trials by Sponsor",
+    "description": "Cached sample of Phase 3 breast cancer studies grouped by lead sponsor.",
+    "encoding": {
+      "x": "sponsor",
+      "y": "trial_count"
+    },
+    "render_hints": {
+      "x_axis_label": "Lead sponsor",
+      "y_axis_label": "Phase 3 trials",
+      "series_name": "Trials",
+      "category_field": "sponsor",
+      "value_field": "trial_count",
+      "tooltip_fields": [
+        "sponsor",
+        "trial_count"
+      ],
+      "sort": "desc",
+      "legend": false
+    },
+    "data": [
+      {
+        "sponsor": "AstraZeneca",
+        "trial_count": 1,
+        "citations": [
+          {
+            "nct_id": "NCT05104866",
+            "field": "protocolSection.sponsorCollaboratorsModule.leadSponsor.name",
+            "value": "AstraZeneca",
+            "excerpt": "leadSponsor=AstraZeneca; condition=Breast Cancer; phase=PHASE3",
+            "brief_title": "Phase 3 breast cancer targeted therapy study"
+          }
+        ]
+      },
+      {
+        "sponsor": "Daiichi Sankyo",
+        "trial_count": 1,
+        "citations": [
+          {
+            "nct_id": "NCT04784715",
+            "field": "protocolSection.sponsorCollaboratorsModule.leadSponsor.name",
+            "value": "Daiichi Sankyo",
+            "excerpt": "leadSponsor=Daiichi Sankyo; condition=Breast Cancer; phase=PHASE3",
+            "brief_title": "Phase 3 metastatic breast cancer trial"
+          }
+        ]
+      },
+      {
+        "sponsor": "Hoffmann-La Roche",
+        "trial_count": 1,
+        "citations": [
+          {
+            "nct_id": "NCT04595565",
+            "field": "protocolSection.sponsorCollaboratorsModule.leadSponsor.name",
+            "value": "Hoffmann-La Roche",
+            "excerpt": "leadSponsor=Hoffmann-La Roche; condition=Breast Cancer; phase=PHASE3",
+            "brief_title": "Phase 3 breast cancer immunotherapy study"
+          }
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "source": "clinicaltrials.gov",
+    "data_mode": "cache",
+    "filters": {
+      "condition": "Breast Cancer",
+      "trial_phase": "PHASE3"
+    },
+    "records_retrieved": 3,
+    "records_used": 3,
+    "generated_at": "2026-06-06T00:00:00Z"
+  },
+  "warnings": [
+    "Cached fixture contains representative records for offline development."
+  ],
+  "assumptions": [
+    "Sponsor counts use leadSponsor.name from each fixture record."
+  ]
+}

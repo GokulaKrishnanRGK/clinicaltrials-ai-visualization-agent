@@ -1,0 +1,46 @@
+{
+  "fixtures": [
+    {
+      "id": "pembrolizumab_trials_by_year",
+      "file": "pembrolizumab_trials_by_year.json",
+      "title": "Pembrolizumab Trials by Start Year",
+      "description": "Time-series cache fixture for drug-focused trial starts.",
+      "query": "How many Pembrolizumab trials started each year since 2015?"
+    },
+    {
+      "id": "alzheimers_recruiting_by_country",
+      "file": "alzheimers_recruiting_by_country.json",
+      "title": "Recruiting Alzheimer's Trials by Country",
+      "description": "Country bar chart cache fixture for recruiting Alzheimer's studies.",
+      "query": "Which countries have the most recruiting Alzheimer's trials?"
+    },
+    {
+      "id": "oncology_phase_status",
+      "file": "oncology_phase_status.json",
+      "title": "Oncology Trials by Phase and Status",
+      "description": "Grouped bar chart cache fixture for phase/status comparison.",
+      "query": "Compare oncology clinical trials by phase and recruitment status."
+    },
+    {
+      "id": "phase3_breast_cancer_sponsors",
+      "file": "phase3_breast_cancer_sponsors.json",
+      "title": "Phase 3 Breast Cancer Trials by Sponsor",
+      "description": "Sponsor ranking cache fixture for Phase 3 breast cancer studies.",
+      "query": "Show Phase 3 breast cancer trials by lead sponsor."
+    },
+    {
+      "id": "diabetes_drug_sponsor_network",
+      "file": "diabetes_drug_sponsor_network.json",
+      "title": "Diabetes Drug and Sponsor Network",
+      "description": "Network graph cache fixture connecting drugs, sponsors, and studies.",
+      "query": "Map diabetes drug trials to their sponsors as a network graph."
+    },
+    {
+      "id": "phase3_sites_by_country",
+      "file": "phase3_sites_by_country.json",
+      "title": "Phase 3 Trial Sites by Country",
+      "description": "Country/site count cache fixture for Phase 3 trials.",
+      "query": "Which countries have the most Phase 3 trial sites?"
+    }
+  ]
+}

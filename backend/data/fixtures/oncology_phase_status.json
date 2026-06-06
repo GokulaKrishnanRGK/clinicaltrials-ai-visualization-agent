@@ -1,0 +1,96 @@
+{
+  "status": "visualization",
+  "request_id": "fixture-oncology-phase-status",
+  "visualization": {
+    "type": "grouped_bar_chart",
+    "title": "Oncology Trials by Phase and Status",
+    "description": "Cached sample of oncology studies grouped by phase and recruitment status.",
+    "encoding": {
+      "x": "phase",
+      "y": "trial_count",
+      "group": "status"
+    },
+    "render_hints": {
+      "x_axis_label": "Phase",
+      "y_axis_label": "Trials",
+      "series_name": "Status",
+      "group_field": "status",
+      "category_field": "phase",
+      "value_field": "trial_count",
+      "tooltip_fields": [
+        "phase",
+        "status",
+        "trial_count"
+      ],
+      "sort": "asc",
+      "legend": true
+    },
+    "data": [
+      {
+        "phase": "PHASE2",
+        "status": "RECRUITING",
+        "trial_count": 1,
+        "citations": [
+          {
+            "nct_id": "NCT04809841",
+            "field": "protocolSection.designModule.phases[]",
+            "value": "PHASE2",
+            "excerpt": "condition=Neoplasms; phase=PHASE2; overallStatus=RECRUITING",
+            "brief_title": "Phase 2 oncology immunotherapy study"
+          }
+        ]
+      },
+      {
+        "phase": "PHASE3",
+        "status": "RECRUITING",
+        "trial_count": 2,
+        "citations": [
+          {
+            "nct_id": "NCT04947275",
+            "field": "protocolSection.designModule.phases[]",
+            "value": "PHASE3",
+            "excerpt": "condition=Neoplasms; phase=PHASE3; overallStatus=RECRUITING",
+            "brief_title": "Phase 3 oncology therapy study"
+          },
+          {
+            "nct_id": "NCT05092131",
+            "field": "protocolSection.designModule.phases[]",
+            "value": "PHASE3",
+            "excerpt": "condition=Neoplasms; phase=PHASE3; overallStatus=RECRUITING",
+            "brief_title": "Phase 3 oncology combination trial"
+          }
+        ]
+      },
+      {
+        "phase": "PHASE3",
+        "status": "ACTIVE_NOT_RECRUITING",
+        "trial_count": 1,
+        "citations": [
+          {
+            "nct_id": "NCT04634877",
+            "field": "protocolSection.statusModule.overallStatus",
+            "value": "ACTIVE_NOT_RECRUITING",
+            "excerpt": "condition=Neoplasms; phase=PHASE3; overallStatus=ACTIVE_NOT_RECRUITING",
+            "brief_title": "Phase 3 oncology maintenance study"
+          }
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "source": "clinicaltrials.gov",
+    "data_mode": "cache",
+    "filters": {
+      "condition": "Neoplasms"
+    },
+    "records_retrieved": 4,
+    "records_used": 4,
+    "generated_at": "2026-06-06T00:00:00Z"
+  },
+  "warnings": [
+    "Cached fixture contains representative records for offline development."
+  ],
+  "assumptions": [
+    "Multi-phase records are represented by their listed fixture phase bucket."
+  ]
+}

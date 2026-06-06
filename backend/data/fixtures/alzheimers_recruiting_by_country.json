@@ -1,0 +1,91 @@
+{
+  "status": "visualization",
+  "request_id": "fixture-alzheimers-recruiting-by-country",
+  "visualization": {
+    "type": "bar_chart",
+    "title": "Recruiting Alzheimer's Trials by Country",
+    "description": "Cached sample of recruiting Alzheimer's studies grouped by country.",
+    "encoding": {
+      "x": "country",
+      "y": "trial_count"
+    },
+    "render_hints": {
+      "x_axis_label": "Country",
+      "y_axis_label": "Recruiting trials",
+      "series_name": "Trials",
+      "category_field": "country",
+      "value_field": "trial_count",
+      "tooltip_fields": [
+        "country",
+        "trial_count"
+      ],
+      "sort": "desc",
+      "legend": false
+    },
+    "data": [
+      {
+        "country": "United States",
+        "trial_count": 2,
+        "citations": [
+          {
+            "nct_id": "NCT04468679",
+            "field": "protocolSection.contactsLocationsModule.locations[].country",
+            "value": "United States",
+            "excerpt": "overallStatus=RECRUITING; condition=Alzheimer Disease; country=United States",
+            "brief_title": "Alzheimer disease treatment study"
+          },
+          {
+            "nct_id": "NCT04592341",
+            "field": "protocolSection.contactsLocationsModule.locations[].country",
+            "value": "United States",
+            "excerpt": "overallStatus=RECRUITING; condition=Alzheimer Disease; country=United States",
+            "brief_title": "Early Alzheimer's intervention trial"
+          }
+        ]
+      },
+      {
+        "country": "Canada",
+        "trial_count": 1,
+        "citations": [
+          {
+            "nct_id": "NCT05108922",
+            "field": "protocolSection.contactsLocationsModule.locations[].country",
+            "value": "Canada",
+            "excerpt": "overallStatus=RECRUITING; condition=Alzheimer Disease; country=Canada",
+            "brief_title": "Alzheimer disease cognition study"
+          }
+        ]
+      },
+      {
+        "country": "United Kingdom",
+        "trial_count": 1,
+        "citations": [
+          {
+            "nct_id": "NCT05269394",
+            "field": "protocolSection.contactsLocationsModule.locations[].country",
+            "value": "United Kingdom",
+            "excerpt": "overallStatus=RECRUITING; condition=Alzheimer Disease; country=United Kingdom",
+            "brief_title": "Alzheimer's biomarker guided trial"
+          }
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "source": "clinicaltrials.gov",
+    "data_mode": "cache",
+    "filters": {
+      "condition": "Alzheimer Disease",
+      "status": "RECRUITING"
+    },
+    "records_retrieved": 4,
+    "records_used": 4,
+    "generated_at": "2026-06-06T00:00:00Z"
+  },
+  "warnings": [
+    "Cached fixture contains representative records for offline development."
+  ],
+  "assumptions": [
+    "Countries are counted from listed trial locations in the fixture records."
+  ]
+}

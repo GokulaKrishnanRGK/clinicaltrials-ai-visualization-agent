@@ -1,0 +1,90 @@
+{
+  "status": "visualization",
+  "request_id": "fixture-phase3-sites-by-country",
+  "visualization": {
+    "type": "bar_chart",
+    "title": "Phase 3 Trial Sites by Country",
+    "description": "Cached sample of Phase 3 study locations grouped by country.",
+    "encoding": {
+      "x": "country",
+      "y": "site_count"
+    },
+    "render_hints": {
+      "x_axis_label": "Country",
+      "y_axis_label": "Sites",
+      "series_name": "Sites",
+      "category_field": "country",
+      "value_field": "site_count",
+      "tooltip_fields": [
+        "country",
+        "site_count"
+      ],
+      "sort": "desc",
+      "legend": false
+    },
+    "data": [
+      {
+        "country": "United States",
+        "site_count": 3,
+        "citations": [
+          {
+            "nct_id": "NCT05035295",
+            "field": "protocolSection.contactsLocationsModule.locations[].country",
+            "value": "United States",
+            "excerpt": "phase=PHASE3; country=United States; facility_count=2",
+            "brief_title": "Phase 3 multicenter respiratory study"
+          },
+          {
+            "nct_id": "NCT04895716",
+            "field": "protocolSection.contactsLocationsModule.locations[].country",
+            "value": "United States",
+            "excerpt": "phase=PHASE3; country=United States; facility_count=1",
+            "brief_title": "Phase 3 cardiovascular outcomes study"
+          }
+        ]
+      },
+      {
+        "country": "Germany",
+        "site_count": 2,
+        "citations": [
+          {
+            "nct_id": "NCT05035295",
+            "field": "protocolSection.contactsLocationsModule.locations[].country",
+            "value": "Germany",
+            "excerpt": "phase=PHASE3; country=Germany; facility_count=2",
+            "brief_title": "Phase 3 multicenter respiratory study"
+          }
+        ]
+      },
+      {
+        "country": "Japan",
+        "site_count": 1,
+        "citations": [
+          {
+            "nct_id": "NCT04895716",
+            "field": "protocolSection.contactsLocationsModule.locations[].country",
+            "value": "Japan",
+            "excerpt": "phase=PHASE3; country=Japan; facility_count=1",
+            "brief_title": "Phase 3 cardiovascular outcomes study"
+          }
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "source": "clinicaltrials.gov",
+    "data_mode": "cache",
+    "filters": {
+      "trial_phase": "PHASE3"
+    },
+    "records_retrieved": 2,
+    "records_used": 2,
+    "generated_at": "2026-06-06T00:00:00Z"
+  },
+  "warnings": [
+    "Cached fixture contains representative records for offline development."
+  ],
+  "assumptions": [
+    "Site counts are derived from fixture location entries, not unique investigators."
+  ]
+}
