@@ -26,13 +26,16 @@ async def interpret_question(state: GraphState) -> dict[str, Any]:
     rid = state["request_id"]
     logger.debug("interpret_question start request_id=%s query=%r", rid, state["query"][:120])
     try:
-        from pydantic import BaseModel, Field
+        from pydantic import BaseModel, ConfigDict, Field, model_validator
 
         from app.services.llm.client import LLMClient
 
         class ParsedQuery(BaseModel):
+            model_config = ConfigDict(extra="ignore")
+
             in_scope: bool = True
             drug_name: str | None = None
+            drug_name_2: str | None = None
             condition: str | None = None
             trial_phase: str | None = None
             sponsor: str | None = None
@@ -43,6 +46,15 @@ async def interpret_question(state: GraphState) -> dict[str, Any]:
             preferred_visualization: str | None = None
             assumptions: list[str] = Field(default_factory=list)
             warnings: list[str] = Field(default_factory=list)
+
+            @model_validator(mode="before")
+            @classmethod
+            def _coerce_null_lists(cls, data: object) -> object:
+                if isinstance(data, dict):
+                    for key in ("assumptions", "warnings"):
+                        if data.get(key) is None:
+                            data[key] = []
+                return data
 
         client = LLMClient()
         parsed = await client.complete_structured(
@@ -112,7 +124,7 @@ def create_retrieval_plan(state: GraphState) -> dict[str, Any]:
         "query": state["query"],
         "max_records": state["max_records"],
     }
-    for key in ("drug_name", "condition", "trial_phase", "sponsor", "country", "status"):
+    for key in ("drug_name", "drug_name_2", "condition", "trial_phase", "sponsor", "country", "status"):
         if intent.get(key):
             params[key] = intent[key]
     for key in ("start_year", "end_year"):

@@ -22,25 +22,35 @@ def _api_failure_response(state: GraphState, detail: str) -> dict[str, Any]:
     return {"final_response": msg.model_dump(mode="json"), "records": [], "records_retrieved": 0}
 
 
-async def execute_tools(state: GraphState) -> dict[str, Any]:
+def _build_request(params: dict, state: GraphState, drug_name: str | None, max_records: int):
     from app.schemas.requests import VisualizationRequest
 
+    return VisualizationRequest(
+        query=params.get("query", state["query"]),
+        drug_name=drug_name,
+        condition=params.get("condition"),
+        sponsor=params.get("sponsor"),
+        country=params.get("country"),
+        status=params.get("status"),
+        start_year=params.get("start_year"),
+        end_year=params.get("end_year"),
+        max_records=max_records,
+    )
+
+
+async def execute_tools(state: GraphState) -> dict[str, Any]:
     rid = state["request_id"]
     params = state.get("retrieval_params") or {}
     logger.debug("execute_tools start request_id=%s params=%s", rid, params)
 
+    drug_name_2 = params.get("drug_name_2")
+
+    if drug_name_2 and params.get("drug_name"):
+        return await _execute_comparison(state, params, rid)
+
     try:
-        request = VisualizationRequest(
-            query=params.get("query", state["query"]),
-            drug_name=params.get("drug_name"),
-            condition=params.get("condition"),
-            sponsor=params.get("sponsor"),
-            country=params.get("country"),
-            status=params.get("status"),
-            start_year=params.get("start_year"),
-            end_year=params.get("end_year"),
-            max_records=params.get("max_records", state["max_records"]),
-        )
+        max_rec = params.get("max_records", state["max_records"])
+        request = _build_request(params, state, params.get("drug_name"), max_rec)
     except Exception as exc:
         logger.warning("execute_tools invalid params request_id=%s error=%s", rid, exc)
         return _api_failure_response(state, str(exc))
@@ -78,4 +88,59 @@ async def execute_tools(state: GraphState) -> dict[str, Any]:
         "records": [r.model_dump(mode="json") for r in result.records],
         "records_retrieved": result.records_retrieved,
         "tool_warnings": result.warnings,
+    }
+
+
+async def _execute_comparison(
+    state: GraphState, params: dict, rid: str
+) -> dict[str, Any]:
+    """Fetch records for two drugs sequentially and tag each with comparison_drug."""
+    drug_names = [params["drug_name"], params["drug_name_2"]]
+    per_drug_max = max(1, params.get("max_records", state["max_records"]) // 2)
+    invoker = ClinicalTrialsToolInvoker()
+
+    all_records: list[dict] = []
+    total_retrieved = 0
+    all_warnings: list[str] = []
+
+    for drug in drug_names:
+        try:
+            request = _build_request(params, state, drug, per_drug_max)
+        except Exception as exc:
+            logger.warning(
+                "execute_tools comparison invalid_params request_id=%s drug=%r error=%s",
+                rid, drug, exc,
+            )
+            continue
+        try:
+            result = await invoker.invoke(request)
+        except ClinicalTrialsToolError as exc:
+            logger.warning(
+                "execute_tools comparison api_failure request_id=%s drug=%r error=%s",
+                rid, drug, exc,
+            )
+            continue
+
+        tagged = [
+            dict(r.model_dump(mode="json"), comparison_drug=drug)
+            for r in result.records
+        ]
+        all_records.extend(tagged)
+        total_retrieved += result.records_retrieved
+        all_warnings.extend(result.warnings)
+        logger.info(
+            "execute_tools comparison_fetch request_id=%s drug=%r "
+            "retrieved=%d normalized=%d",
+            rid, drug, result.records_retrieved, len(result.records),
+        )
+
+    logger.info(
+        "execute_tools complete request_id=%s mode=comparison "
+        "records_retrieved=%d records_normalized=%d",
+        rid, total_retrieved, len(all_records),
+    )
+    return {
+        "records": all_records,
+        "records_retrieved": total_retrieved,
+        "tool_warnings": all_warnings,
     }

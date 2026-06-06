@@ -182,7 +182,10 @@ export function chartOption(visualization: VisualizationSpec): EChartsOption {
     xAxis: {
       type: "category",
       name: hints?.x_axis_label,
-      data: visualization.data.map((datum) => getField(datum, xField, "")),
+      data: visualization.data.map((datum) => {
+        const v = datum[xField];
+        return v !== null && v !== undefined && !Array.isArray(v) ? String(v) : "";
+      }),
     },
     yAxis: { type: "value", name: hints?.y_axis_label },
     series: [

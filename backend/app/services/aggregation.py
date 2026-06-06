@@ -175,6 +175,39 @@ def count_by_sponsor(
     ]
 
 
+def count_by_phase_per_drug(
+    records: list[dict[str, Any]],
+    *,
+    citation_limit: int = 10,
+) -> list[dict[str, Any]]:
+    """Count trials by (phase, comparison_drug) for drug-vs-drug queries.
+
+    Records must be plain dicts with a `comparison_drug` key (set by execute_tools).
+    """
+    buckets: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for record in records:
+        phase = "/".join(record.get("phases") or []) or "N/A"
+        drug = record.get("comparison_drug") or "Unknown"
+        buckets[(phase, drug)].append(record)
+    return [
+        {
+            "phase": phase,
+            "drug_name": drug,
+            "trial_count": len(recs),
+            "citations": [
+                {
+                    "nct_id": r.get("nct_id", ""),
+                    "field": "interventions",
+                    "value": drug,
+                    "brief_title": r.get("brief_title"),
+                }
+                for r in recs[:citation_limit]
+            ] if citation_limit else [],
+        }
+        for (phase, drug), recs in sorted(buckets.items(), key=lambda x: -len(x[1]))
+    ]
+
+
 def build_drug_sponsor_network(
     records: list[NormalizedTrialRecord],
     *,
