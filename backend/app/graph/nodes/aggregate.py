@@ -23,6 +23,14 @@ def _choose_agg_type(state: GraphState) -> str:
     if "network" in pref or any(kw in query for kw in ("network", "graph", "map")):
         return "drug_sponsor_network"
 
+    if "scatter" in pref or any(kw in query for kw in ("scatter", "complexity")):
+        return "scatter_by_year"
+
+    if "histogram" in pref or any(
+        kw in query for kw in ("histogram", "distribution", "frequency", "spread")
+    ):
+        return "histogram_by_year"
+
     if any(kw in query for kw in ("year", "since", "trend", "over time", "timeline")):
         return "by_year"
 
@@ -67,10 +75,17 @@ def aggregate_data(state: GraphState) -> dict[str, Any]:
         data = agg.count_by_phase_and_status(records, citation_limit=limit)
     elif agg_type == "by_sponsor":
         data = agg.count_by_sponsor(records, citation_limit=limit)
+    elif agg_type == "scatter_by_year":
+        data = agg.scatter_interventions_by_year(records, citation_limit=limit)
+    elif agg_type == "histogram_by_year":
+        data = agg.histogram_start_years(records, citation_limit=limit)
     elif agg_type == "drug_cooccurrence_network":
         data = agg.build_drug_cooccurrence_network(records, citation_limit=limit)
     else:
         data = agg.build_drug_sponsor_network(records, citation_limit=limit)
 
-    logger.info("aggregate_data complete request_id=%s agg_type=%s rows=%d", rid, agg_type, len(data) if isinstance(data, list) else 1)
+    row_count = len(data) if isinstance(data, list) else 1
+    logger.info(
+        "aggregate_data complete request_id=%s agg_type=%s rows=%d", rid, agg_type, row_count
+    )
     return {"agg_type": agg_type, "agg_data": data}

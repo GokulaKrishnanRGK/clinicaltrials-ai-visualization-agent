@@ -69,6 +69,8 @@ class VisualizationType(StrEnum):
     LINE_CHART = "line_chart"
     TIME_SERIES = "time_series"
     NETWORK_GRAPH = "network_graph"
+    SCATTER_CHART = "scatter_chart"
+    HISTOGRAM = "histogram"
 
 
 VISUALIZATION_TYPE_ALIASES: dict[str, VisualizationType] = {
@@ -84,6 +86,12 @@ VISUALIZATION_TYPE_ALIASES: dict[str, VisualizationType] = {
     "timeseries": VisualizationType.TIME_SERIES,
     "network": VisualizationType.NETWORK_GRAPH,
     "network_graph": VisualizationType.NETWORK_GRAPH,
+    "scatter": VisualizationType.SCATTER_CHART,
+    "scatter_chart": VisualizationType.SCATTER_CHART,
+    "scatter_plot": VisualizationType.SCATTER_CHART,
+    "histogram": VisualizationType.HISTOGRAM,
+    "hist": VisualizationType.HISTOGRAM,
+    "distribution": VisualizationType.HISTOGRAM,
 }
 
 
@@ -157,6 +165,12 @@ PUBLIC_VISUALIZATION_TYPE_VALUES = [
     "timeseries",
     "network",
     "network_graph",
+    "scatter",
+    "scatter_chart",
+    "scatter_plot",
+    "histogram",
+    "hist",
+    "distribution",
 ]
 
 PUBLIC_COUNTRY_DISPLAY_ALIASES = [

@@ -113,6 +113,34 @@ export function chartOption(visualization: VisualizationSpec): EChartsOption {
   const yField = visualization.encoding.y;
   const hints = visualization.render_hints;
 
+  if (visualization.type === "scatter_chart") {
+    return {
+      color: CHART_COLORS,
+      tooltip: {
+        trigger: "item",
+        formatter: (params) => {
+          if (Array.isArray(params)) return "";
+          const d = params.data as [number, number];
+          return `${hints?.x_axis_label ?? xField}: ${d[0]}<br/>${hints?.y_axis_label ?? yField}: ${d[1]}`;
+        },
+      },
+      grid: { top: 52, right: 24, bottom: 56, left: 64 },
+      xAxis: { type: "value", name: hints?.x_axis_label, minInterval: 1 },
+      yAxis: { type: "value", name: hints?.y_axis_label },
+      series: [
+        {
+          type: "scatter",
+          name: hints?.series_name ?? yField,
+          symbolSize: 10,
+          data: visualization.data.map((datum) => [
+            getField(datum, xField, 0),
+            getField(datum, yField, 0),
+          ]),
+        },
+      ],
+    };
+  }
+
   if (visualization.type === "grouped_bar_chart") {
     const categoryField = hints?.category_field ?? xField;
     const groupField = hints?.group_field ?? visualization.encoding.group;
@@ -159,7 +187,7 @@ export function chartOption(visualization: VisualizationSpec): EChartsOption {
     yAxis: { type: "value", name: hints?.y_axis_label },
     series: [
       {
-        type: visualization.type === "bar_chart" ? "bar" : "line",
+        type: visualization.type === "bar_chart" || visualization.type === "histogram" ? "bar" : "line",
         name: hints?.series_name ?? yField,
         smooth: visualization.type !== "bar_chart",
         data: visualization.data.map((datum) => getField(datum, yField, 0)),

@@ -782,6 +782,122 @@ export const examples: Example[] = [
     },
   },
   {
+    id: "scatter",
+    label: "Oncology trial complexity by year",
+    request: {
+      query: "Show how oncology trial intervention counts changed by start year.",
+      condition: "Neoplasms",
+      start_year: 2018,
+      end_year: 2024,
+      preferred_visualization: "scatter_chart",
+      max_records: 500,
+      citation_limit: 10,
+    },
+    response: {
+      status: "visualization",
+      request_id: "req_scatter_001",
+      visualization: {
+        type: "scatter_chart",
+        title: "Avg Interventions per Oncology Trial by Start Year",
+        description:
+          "Average number of study arms/interventions per trial, plotted by start year as a proxy for trial complexity.",
+        encoding: { x: "start_year", y: "avg_interventions" },
+        data: [
+          { start_year: 2018, avg_interventions: 2.1, trial_count: 84, citations: [] },
+          {
+            start_year: 2019,
+            avg_interventions: 2.4,
+            trial_count: 97,
+            citations: [
+              citation(
+                "NCT03892525",
+                "protocolSection.armsInterventionsModule.interventions.name",
+                "Pembrolizumab",
+                "Pembrolizumab + Chemo Combo Study",
+              ),
+            ],
+          },
+          { start_year: 2020, avg_interventions: 2.2, trial_count: 91, citations: [] },
+          {
+            start_year: 2021,
+            avg_interventions: 2.6,
+            trial_count: 112,
+            citations: [
+              citation(
+                "NCT04895618",
+                "protocolSection.armsInterventionsModule.interventions.name",
+                "Nivolumab",
+                "Nivolumab + Ipilimumab NSCLC Study",
+              ),
+            ],
+          },
+          { start_year: 2022, avg_interventions: 2.8, trial_count: 118, citations: [] },
+          { start_year: 2023, avg_interventions: 3.0, trial_count: 104, citations: [] },
+          { start_year: 2024, avg_interventions: 2.9, trial_count: 78, citations: [] },
+        ],
+        render_hints: {
+          x_axis_label: "Start year",
+          y_axis_label: "Avg interventions per trial",
+          series_name: "Avg interventions",
+        },
+      },
+      meta: baseMeta({ condition: "Neoplasms", start_year: 2018, end_year: 2024 }, 684, 684),
+      warnings: ["Intervention count counts named arms; placebo arms are included."],
+      assumptions: ["Years with fewer than 5 trials are excluded from this sample."],
+    },
+  },
+  {
+    id: "histogram",
+    label: "COVID-19 trial year distribution",
+    request: {
+      query: "Show the distribution of COVID-19 trial registrations across year ranges.",
+      condition: "COVID-19",
+      preferred_visualization: "histogram",
+      max_records: 500,
+      citation_limit: 10,
+    },
+    response: {
+      status: "visualization",
+      request_id: "req_hist_001",
+      visualization: {
+        type: "histogram",
+        title: "COVID-19 Trial Registrations — Year Distribution",
+        description:
+          "Frequency histogram of COVID-19 trial start years, showing the surge and decline in registrations.",
+        encoding: { x: "range_label", y: "trial_count" },
+        data: [
+          {
+            range_label: "2019–2020",
+            min_year: 2019,
+            max_year: 2020,
+            trial_count: 1748,
+            citations: [
+              citation(
+                "NCT04280705",
+                "protocolSection.statusModule.startDateStruct.date",
+                "2020-03-09",
+                "Hydroxychloroquine in COVID-19",
+              ),
+            ],
+          },
+          { range_label: "2021–2022", min_year: 2021, max_year: 2022, trial_count: 1433, citations: [] },
+          { range_label: "2023–2024", min_year: 2023, max_year: 2024, trial_count: 522, citations: [] },
+        ],
+        render_hints: {
+          x_axis_label: "Year range",
+          y_axis_label: "Trials registered",
+          series_name: "Trials registered",
+        },
+      },
+      meta: baseMeta({ condition: "COVID-19" }, 3703, 3703),
+      warnings: [],
+      assumptions: [
+        "Start year is derived from startDateStruct.date; trials with no date are excluded.",
+        "Bins span two calendar years to reduce bin count for readability.",
+      ],
+    },
+  },
+  {
     id: "message",
     label: "Out of scope query",
     request: {

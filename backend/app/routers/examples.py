@@ -91,6 +91,30 @@ _EXAMPLES: list[dict[str, Any]] = [
         },
     },
     {
+        "id": "scatter",
+        "label": "Trial complexity by year",
+        "request": {
+            "query": "Show how oncology trial intervention counts changed by start year.",
+            "condition": "Neoplasms",
+            "start_year": 2018,
+            "end_year": 2024,
+            "preferred_visualization": "scatter_chart",
+            "max_records": 500,
+            "citation_limit": 10,
+        },
+    },
+    {
+        "id": "histogram",
+        "label": "COVID-19 trial year distribution",
+        "request": {
+            "query": "Show the distribution of COVID-19 trial registrations across year ranges.",
+            "condition": "COVID-19",
+            "preferred_visualization": "histogram",
+            "max_records": 500,
+            "citation_limit": 10,
+        },
+    },
+    {
         "id": "message",
         "label": "Insufficient data example",
         "request": {

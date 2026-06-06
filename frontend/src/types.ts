@@ -3,7 +3,9 @@ export type VisualizationType =
   | "grouped_bar_chart"
   | "line_chart"
   | "time_series"
-  | "network_graph";
+  | "network_graph"
+  | "scatter_chart"
+  | "histogram";
 
 export type SourceCitation = {
   nct_id: string;

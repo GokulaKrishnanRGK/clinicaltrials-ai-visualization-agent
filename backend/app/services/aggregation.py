@@ -232,6 +232,68 @@ def build_drug_sponsor_network(
     return NetworkGraphData(nodes=nodes, edges=edges)
 
 
+def scatter_interventions_by_year(
+    records: list[NormalizedTrialRecord],
+    *,
+    citation_limit: int = 10,
+) -> list[dict[str, Any]]:
+    """Per start-year: avg intervention count and trial count for scatter plot."""
+    buckets: dict[int, list[NormalizedTrialRecord]] = defaultdict(list)
+    for record in records:
+        if record.start_date is None:
+            continue
+        buckets[record.start_date.year].append(record)
+    return [
+        {
+            "start_year": year,
+            "avg_interventions": round(
+                sum(len(r.interventions) for r in recs) / len(recs), 1
+            ),
+            "trial_count": len(recs),
+            "citations": [
+                c.model_dump() for c in _citations(recs, "interventions", citation_limit)
+            ],
+        }
+        for year, recs in sorted(buckets.items())
+    ]
+
+
+def histogram_start_years(
+    records: list[NormalizedTrialRecord],
+    *,
+    bins: int = 8,
+    citation_limit: int = 10,
+) -> list[dict[str, Any]]:
+    """Histogram of trial start years across equal-width year bins."""
+    dated = [(r.start_date.year, r) for r in records if r.start_date is not None]
+    if not dated:
+        return []
+    all_years = [y for y, _ in dated]
+    min_year, max_year = min(all_years), max(all_years)
+    span = max(1, max_year - min_year + 1)
+    bin_size = max(1, (span + bins - 1) // bins)
+
+    bin_buckets: dict[int, list[NormalizedTrialRecord]] = defaultdict(list)
+    for year, record in dated:
+        bin_start = min_year + ((year - min_year) // bin_size) * bin_size
+        bin_buckets[bin_start].append(record)
+
+    return [
+        {
+            "range_label": (
+                str(bin_start)
+                if bin_size == 1
+                else f"{bin_start}–{min(bin_start + bin_size - 1, max_year)}"
+            ),
+            "min_year": bin_start,
+            "max_year": min(bin_start + bin_size - 1, max_year),
+            "trial_count": len(recs),
+            "citations": [c.model_dump() for c in _citations(recs, "start_date", citation_limit)],
+        }
+        for bin_start, recs in sorted(bin_buckets.items())
+    ]
+
+
 def build_drug_cooccurrence_network(
     records: list[NormalizedTrialRecord],
     *,
