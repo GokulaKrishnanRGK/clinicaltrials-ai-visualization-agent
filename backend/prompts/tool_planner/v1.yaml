@@ -32,6 +32,7 @@ system_template: |
     by_phase_per_label   – grouped bar: phase × label  ← for multi-call comparisons
     drug_sponsor_network       – network graph: drugs linked to their sponsors
     drug_cooccurrence_network  – network graph: drugs that appear in the same trials
+    drug_condition_network     – network graph: drugs linked to the conditions they treat
     scatter_by_year      – scatter plot: avg interventions vs start year
     histogram_by_year    – histogram: trial distribution across start-year bins
 
@@ -47,7 +48,9 @@ system_template: |
        - status distribution → by_status
        - geographic, "which countries", "by country", "per country" → by_country
        - sponsors → by_sponsor
-       - relationships/network → drug_sponsor_network or drug_cooccurrence_network
+       - drug–condition relationships, "connect to conditions", "treat" → drug_condition_network
+       - drug co-occurrence, "same trials", "combination" → drug_cooccurrence_network
+       - drug–sponsor relationships → drug_sponsor_network
     6. Do not invent drugs, conditions, sponsors, or countries not present in the query or intent.
     7. Omit null/empty filter fields entirely from the output.
     8. For status and trial_phase, use only the EXACT enum values listed in capabilities.

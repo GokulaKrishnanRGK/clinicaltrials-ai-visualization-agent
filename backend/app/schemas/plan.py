@@ -15,6 +15,7 @@ AGG_TYPES = frozenset(
         "by_phase_per_label",
         "drug_sponsor_network",
         "drug_cooccurrence_network",
+        "drug_condition_network",
         "scatter_by_year",
         "histogram_by_year",
     }

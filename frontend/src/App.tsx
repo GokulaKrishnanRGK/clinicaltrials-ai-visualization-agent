@@ -18,12 +18,10 @@ export function App() {
   const [showJson, setShowJson] = useState(false);
   const [selectedId, setSelectedId] = useState(localExamples[0].id);
   const [query, setQuery] = useState(localExamples[0].request.query);
-  const [citationLimit, setCitationLimit] = useState(localExamples[0].request.citation_limit);
-  const [maxRecords, setMaxRecords] = useState(localExamples[0].request.max_records);
-  const [previewResponse, setPreviewResponse] = useState<VisualizationApiResponse | null>(
-    localExamples[0].response,
-  );
-  const [isLiveMode, setIsLiveMode] = useState(false);
+  const [citationLimit, setCitationLimit] = useState(5);
+  const [maxRecords, setMaxRecords] = useState(100);
+  const [previewResponse, setPreviewResponse] = useState<VisualizationApiResponse | null>(null);
+  const [isLiveMode, setIsLiveMode] = useState(true);
 
   const stream = useVisualizationStream();
 

@@ -33,7 +33,7 @@ type Props = {
 };
 
 export function ExamplesPanel({ examples, selectedId, onSelect, onModeChange }: Props) {
-  const [mode, setMode] = useState<Mode>("cache");
+  const [mode, setMode] = useState<Mode>("live");
   const [activeCategory, setActiveCategory] = useState<ExampleCategory>("bar");
 
   function handleModeChange(next: Mode) {
@@ -64,12 +64,6 @@ export function ExamplesPanel({ examples, selectedId, onSelect, onModeChange }: 
           </button>
         </div>
       </div>
-
-      {mode === "live" && (
-        <p className="mode-hint">
-          Click a card to pre-fill the query, then hit <strong>Submit</strong> to fetch live data from ClinicalTrials.gov.
-        </p>
-      )}
 
       <div className="category-tabs" role="tablist">
         {CATEGORIES.map((cat) => {

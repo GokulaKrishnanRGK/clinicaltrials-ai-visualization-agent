@@ -266,6 +266,77 @@ def build_drug_sponsor_network(
     return NetworkGraphData(nodes=nodes, edges=edges)
 
 
+def build_drug_condition_network(
+    records: list[NormalizedTrialRecord],
+    *,
+    citation_limit: int = 10,
+    top_n: int = 30,
+) -> NetworkGraphData:
+    """Build a drug→condition network from trial records."""
+    drug_recs: dict[str, list[NormalizedTrialRecord]] = defaultdict(list)
+    condition_recs: dict[str, list[NormalizedTrialRecord]] = defaultdict(list)
+    edge_recs: dict[tuple[str, str], list[NormalizedTrialRecord]] = defaultdict(list)
+
+    for record in records:
+        for drug in record.interventions[:5]:
+            if not drug:
+                continue
+            drug_id = "drug_" + drug.lower().replace(" ", "_")[:30]
+            drug_recs[drug_id].append(record)
+            for condition in record.conditions[:5]:
+                if not condition:
+                    continue
+                cond_id = "cond_" + condition.lower().replace(" ", "_")[:30]
+                condition_recs[cond_id].append(record)
+                edge_recs[(drug_id, cond_id)].append(record)
+
+    # Keep only the top_n most common drugs and conditions to avoid overwhelming graphs.
+    top_drug_ids = {
+        drug_id
+        for drug_id, _ in sorted(drug_recs.items(), key=lambda x: -len(x[1]))[:top_n]
+    }
+    top_cond_ids = {
+        cond_id
+        for cond_id, _ in sorted(condition_recs.items(), key=lambda x: -len(x[1]))[:top_n]
+    }
+
+    nodes: list[NetworkNode] = [
+        NetworkNode(
+            id=drug_id,
+            label=recs[0].interventions[0] if recs[0].interventions else drug_id,
+            type="drug",
+            value=len(recs),
+            citations=_citations(recs, "interventions", citation_limit),
+        )
+        for drug_id, recs in drug_recs.items()
+        if drug_id in top_drug_ids
+    ] + [
+        NetworkNode(
+            id=cond_id,
+            label=recs[0].conditions[0] if recs[0].conditions else cond_id,
+            type="condition",
+            value=len(recs),
+            citations=_citations(recs, "conditions", citation_limit),
+        )
+        for cond_id, recs in condition_recs.items()
+        if cond_id in top_cond_ids
+    ]
+
+    edges: list[NetworkEdge] = [
+        NetworkEdge(
+            source=drug_id,
+            target=cond_id,
+            weight=len(recs),
+            relation="studies",
+            citations=_citations(recs, "interventions", citation_limit),
+        )
+        for (drug_id, cond_id), recs in edge_recs.items()
+        if drug_id in top_drug_ids and cond_id in top_cond_ids
+    ]
+
+    return NetworkGraphData(nodes=nodes, edges=edges)
+
+
 def scatter_interventions_by_year(
     records: list[NormalizedTrialRecord],
     *,
@@ -345,7 +416,8 @@ def build_drug_cooccurrence_network(
         if len(drug_ids) >= 2:
             for i, d1 in enumerate(drug_ids):
                 for d2 in drug_ids[i + 1 :]:
-                    edge_recs[frozenset([d1, d2])].append(record)
+                    if d1 != d2:  # skip when normalization collapses two names to the same id
+                        edge_recs[frozenset([d1, d2])].append(record)
 
     drug_labels: dict[str, str] = {}
     for record in records:

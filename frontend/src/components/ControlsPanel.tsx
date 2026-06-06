@@ -1,8 +1,5 @@
 import "../styles/components/ControlsPanel.css";
 
-const CITATION_OPTIONS = [0, 3, 5, 10, 15, 20, 25];
-const MAX_RECORDS_OPTIONS = [50, 100, 200, 500];
-
 type ControlsPanelProps = {
   query: string;
   citationLimit: number;
@@ -39,32 +36,32 @@ export function ControlsPanel({
       <div className="controls-row">
         <div className="field">
           <label htmlFor="citation-limit">Citations</label>
-          <select
+          <input
             id="citation-limit"
+            type="number"
+            min={0}
+            max={25}
             value={citationLimit}
-            onChange={(event) => onCitationLimitChange(Number(event.target.value))}
-          >
-            {CITATION_OPTIONS.map((n) => (
-              <option value={n} key={n}>
-                {n === 0 ? "None" : n}
-              </option>
-            ))}
-          </select>
+            onChange={(event) => {
+              const v = Math.min(25, Math.max(0, Number(event.target.value)));
+              onCitationLimitChange(isNaN(v) ? 0 : v);
+            }}
+          />
         </div>
 
         <div className="field">
           <label htmlFor="max-records">Records</label>
-          <select
+          <input
             id="max-records"
+            type="number"
+            min={1}
+            max={1000}
             value={maxRecords}
-            onChange={(event) => onMaxRecordsChange(Number(event.target.value))}
-          >
-            {MAX_RECORDS_OPTIONS.map((n) => (
-              <option value={n} key={n}>
-                {n}
-              </option>
-            ))}
-          </select>
+            onChange={(event) => {
+              const v = Math.min(1000, Math.max(1, Number(event.target.value)));
+              onMaxRecordsChange(isNaN(v) ? 1 : v);
+            }}
+          />
         </div>
       </div>
 

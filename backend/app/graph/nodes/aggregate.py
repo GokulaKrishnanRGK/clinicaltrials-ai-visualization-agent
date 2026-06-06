@@ -49,6 +49,8 @@ def aggregate_data(state: GraphState) -> dict[str, Any]:
             data = agg.histogram_start_years(records, citation_limit=limit)
         elif agg_type == "drug_cooccurrence_network":
             data = agg.build_drug_cooccurrence_network(records, citation_limit=limit)
+        elif agg_type == "drug_condition_network":
+            data = agg.build_drug_condition_network(records, citation_limit=limit)
         else:
             data = agg.build_drug_sponsor_network(records, citation_limit=limit)
 
