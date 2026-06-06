@@ -131,10 +131,10 @@ paths:
         The stream ends after the `final_response` event. Clients should close
         the connection at that point.
 
-        Tracked nodes (in order): `scope_check`, `cache_lookup`,
-        `interpret_question`, `create_retrieval_plan`, `execute_tools`,
-        `assess_data_sufficiency`, `repair_plan`, `aggregate_data`,
-        `generate_visualization_spec`, `validate_response`, `message_insufficient`.
+        Tracked nodes (in order): `interpret_question`, `plan_tool_calls`,
+        `execute_tool_calls`, `assess_data_sufficiency`, `repair_plan`,
+        `aggregate_data`, `generate_visualization_spec`, `generate_insight`,
+        `validate_response`, `message_insufficient`.
       requestBody:
         required: true
         content:
@@ -169,7 +169,7 @@ paths:
                   value: "data: {\"type\": \"node_success\", \"node\": \"interpret_question\", \"duration_ms\": 412}\n\n"
                 node_retry:
                   summary: Node retrying (repair loop)
-                  value: "data: {\"type\": \"node_retry\", \"node\": \"execute_tools\", \"attempt\": 2}\n\n"
+                  value: "data: {\"type\": \"node_retry\", \"node\": \"execute_tool_calls\", \"attempt\": 2}\n\n"
                 node_error:
                   summary: Node errored
                   value: "data: {\"type\": \"node_error\", \"node\": \"interpret_question\", \"error\": \"LLM timeout\"}\n\n"
@@ -729,7 +729,7 @@ components:
           enum: [node_retry]
         node:
           type: string
-          example: execute_tools
+          example: execute_tool_calls
         attempt:
           type: integer
           minimum: 2
