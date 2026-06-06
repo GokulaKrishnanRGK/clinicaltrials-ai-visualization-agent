@@ -1,6 +1,6 @@
 :root {
-  color: #1f2937;
-  background: #f6f8fb;
+  color: #172033;
+  background: #f4f7fb;
   font-family:
     Inter,
     ui-sans-serif,
@@ -9,6 +9,8 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
 }
 
 * {
@@ -20,81 +22,100 @@ body {
 }
 
 button,
+input,
+select,
 textarea {
   font: inherit;
 }
 
-.app-shell {
-  min-height: 100vh;
-  padding: 32px;
-}
-
-.dashboard {
-  max-width: 1120px;
-  margin: 0 auto;
-}
-
-.dashboard-header {
-  margin-bottom: 24px;
-}
-
-.eyebrow {
-  margin: 0 0 8px;
-  color: #2563eb;
-  font-size: 0.875rem;
-  font-weight: 700;
-  text-transform: uppercase;
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
 }
 
 h1 {
-  margin: 0;
-  color: #111827;
+  margin-bottom: 0;
+  color: #0f172a;
   font-size: 2rem;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
-.summary {
-  max-width: 620px;
-  margin: 12px 0 0;
-  color: #4b5563;
-  line-height: 1.6;
-}
-
-.query-panel {
-  display: grid;
-  gap: 12px;
-  max-width: 680px;
-  padding: 20px;
-  background: #ffffff;
-  border: 1px solid #dbe3ef;
-  border-radius: 8px;
-}
-
-label {
+h2 {
+  margin-bottom: 10px;
   color: #111827;
-  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+h3 {
+  margin-bottom: 8px;
+  color: #334155;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+p,
+li,
+dd {
+  color: #475569;
+  line-height: 1.55;
+}
+
+label,
+legend,
+dt {
+  color: #1e293b;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+textarea,
+select {
+  width: 100%;
+  color: #172033;
+  background: #fbfdff;
+  border: 1px solid #c9d5e5;
+  border-radius: 6px;
 }
 
 textarea {
-  min-height: 120px;
+  min-height: 112px;
   resize: vertical;
   padding: 12px;
-  color: #374151;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
 }
 
-button {
+select {
+  min-height: 42px;
+  padding: 8px 10px;
+}
+
+code {
   width: fit-content;
-  padding: 10px 14px;
-  color: #ffffff;
-  background: #2563eb;
-  border: 0;
-  border-radius: 6px;
+  max-width: 100%;
+  padding: 3px 6px;
+  overflow-wrap: anywhere;
+  color: #0f172a;
+  background: #eef2f7;
+  border-radius: 4px;
+  font-size: 0.78rem;
 }
 
-button:disabled,
-textarea:disabled {
-  cursor: not-allowed;
-  opacity: 0.72;
+dt {
+  margin-bottom: 3px;
+}
+
+dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.eyebrow {
+  margin: 0 0 7px;
+  color: #0f766e;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }

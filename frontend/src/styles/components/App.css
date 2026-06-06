@@ -1,0 +1,46 @@
+.app-shell {
+  min-height: 100vh;
+  padding: 28px;
+}
+
+.dashboard {
+  width: min(1440px, 100%);
+  margin: 0 auto;
+}
+
+.main-grid,
+.json-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.main-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.json-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 980px) {
+  .app-shell {
+    padding: 18px;
+  }
+
+  .main-grid,
+  .json-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .app-shell {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 1.55rem;
+  }
+}

@@ -1,0 +1,90 @@
+.controls-panel {
+  display: grid;
+  gap: 18px;
+  padding: 18px;
+  margin-bottom: 18px;
+  background: #ffffff;
+  border: 1px solid #d8e1ef;
+  border-radius: 8px;
+  box-shadow: 0 16px 40px rgb(15 23 42 / 0.06);
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.control-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto minmax(220px, 280px);
+  gap: 16px;
+  align-items: end;
+}
+
+.segmented-control {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 42px;
+  padding: 0;
+  border: 0;
+}
+
+.segmented-control legend {
+  margin-bottom: 8px;
+}
+
+.segmented-control label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 7px 10px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.segmented-control input {
+  accent-color: #0f766e;
+}
+
+.citation-control {
+  grid-template-columns: 1fr 42px;
+  align-items: center;
+}
+
+.citation-control label,
+.citation-control input {
+  grid-column: 1 / -1;
+}
+
+.citation-control input {
+  accent-color: #0f766e;
+}
+
+.citation-control output {
+  justify-self: end;
+  padding: 4px 8px;
+  color: #0f172a;
+  background: #e6f4f1;
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+@media (max-width: 980px) {
+  .control-row {
+    grid-template-columns: 1fr;
+  }
+
+  .segmented-control {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 560px) {
+  .controls-panel {
+    padding: 14px;
+  }
+}
