@@ -24,8 +24,11 @@ _AGG_TYPE_TO_VIZ: dict[str, VisualizationType] = {
     "by_phase_and_status": VisualizationType.GROUPED_BAR_CHART,
     "by_phase_per_label": VisualizationType.GROUPED_BAR_CHART,
     "by_sponsor": VisualizationType.BAR_CHART,
+    "scatter_by_year": VisualizationType.SCATTER_CHART,
+    "histogram_by_year": VisualizationType.HISTOGRAM,
     "drug_sponsor_network": VisualizationType.NETWORK_GRAPH,
     "drug_cooccurrence_network": VisualizationType.NETWORK_GRAPH,
+    "drug_condition_network": VisualizationType.NETWORK_GRAPH,
 }
 
 _CHART_TITLES: dict[str, str] = {
@@ -36,8 +39,11 @@ _CHART_TITLES: dict[str, str] = {
     "by_phase_and_status": "Trials by Phase and Status",
     "by_phase_per_label": "Trials by Phase per Group",
     "by_sponsor": "Trials by Sponsor",
+    "scatter_by_year": "Trial Interventions by Start Year",
+    "histogram_by_year": "Trial Registrations by Year Range",
     "drug_sponsor_network": "Drug–Sponsor Network",
     "drug_cooccurrence_network": "Drug Co-occurrence Network",
+    "drug_condition_network": "Drug–Condition Network",
 }
 
 _CHART_CONFIGS: dict[str, tuple[dict[str, str], EChartsRenderHints]] = {
@@ -116,6 +122,28 @@ _CHART_CONFIGS: dict[str, tuple[dict[str, str], EChartsRenderHints]] = {
             legend=False,
         ),
     ),
+    "scatter_by_year": (
+        {"x": "start_year", "y": "avg_interventions"},
+        EChartsRenderHints(
+            x_axis_label="Start Year",
+            y_axis_label="Avg Interventions per Trial",
+            category_field="start_year",
+            value_field="avg_interventions",
+            sort="chronological",
+            legend=False,
+            tooltip_fields=["start_year", "avg_interventions", "trial_count"],
+        ),
+    ),
+    "histogram_by_year": (
+        {"x": "range_label", "y": "trial_count"},
+        EChartsRenderHints(
+            x_axis_label="Year Range",
+            y_axis_label="Trials Registered",
+            category_field="range_label",
+            value_field="trial_count",
+            legend=False,
+        ),
+    ),
 }
 
 _NETWORK_ENCODING: dict[str, str] = {
@@ -141,7 +169,7 @@ def generate_visualization_spec(state: GraphState) -> dict[str, Any]:
         title,
     )
 
-    if agg_type in ("drug_sponsor_network", "drug_cooccurrence_network"):
+    if agg_type in ("drug_sponsor_network", "drug_cooccurrence_network", "drug_condition_network"):
         spec = NetworkVisualizationSpec(
             type=VisualizationType.NETWORK_GRAPH,
             title=title,
@@ -167,8 +195,9 @@ def generate_visualization_spec(state: GraphState) -> dict[str, Any]:
             EChartsRenderHints(category_field="label", value_field="value"),
         )
         encoding, render_hints = _CHART_CONFIGS.get(agg_type, default_config)
+        viz_type = _AGG_TYPE_TO_VIZ.get(agg_type, VisualizationType.BAR_CHART)
         spec = ChartVisualizationSpec(
-            type=_AGG_TYPE_TO_VIZ[agg_type],
+            type=viz_type,
             title=title,
             encoding=encoding,
             render_hints=render_hints,

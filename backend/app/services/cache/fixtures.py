@@ -84,7 +84,6 @@ class CacheFixtureDataSource:
             reason="cache_miss",
             suggested_queries=suggested_queries,
             meta={
-                "data_mode": "cache",
                 "filters": {"query": query},
                 "records_retrieved": 0,
                 "records_used": 0,

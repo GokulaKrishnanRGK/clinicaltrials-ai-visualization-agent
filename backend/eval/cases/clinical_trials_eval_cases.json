@@ -1,0 +1,274 @@
+[
+  {
+    "id": "choropleth",
+    "description": "Oncology trial country distribution — bar/choropleth",
+    "request": {
+      "query": "Which countries have the most oncology trials? Show the top 20 countries.",
+      "condition": "Neoplasms",
+      "preferred_visualization": "bar_chart"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "bar_chart",
+      "non_empty_data": true,
+      "has_citations": true
+    }
+  },
+  {
+    "id": "bar",
+    "description": "Recruiting Alzheimer's trials by country",
+    "request": {
+      "query": "Which countries have the most recruiting Alzheimer's trials?",
+      "condition": "Alzheimer Disease",
+      "status": "recruiting",
+      "preferred_visualization": "bar_chart"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "bar_chart",
+      "non_empty_data": true,
+      "has_citations": true
+    }
+  },
+  {
+    "id": "bar_status",
+    "description": "COVID-19 trials by status",
+    "request": {
+      "query": "Show COVID-19 trials broken down by current status.",
+      "condition": "COVID-19",
+      "preferred_visualization": "bar_chart"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "bar_chart",
+      "non_empty_data": true,
+      "has_citations": true
+    }
+  },
+  {
+    "id": "bar_sponsors",
+    "description": "Top sponsors for recruiting oncology trials",
+    "request": {
+      "query": "Which sponsors have the most active recruiting oncology trials?",
+      "condition": "Neoplasms",
+      "status": "recruiting",
+      "preferred_visualization": "bar_chart"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "bar_chart",
+      "non_empty_data": true,
+      "has_citations": true
+    }
+  },
+  {
+    "id": "grouped",
+    "description": "Phase 2 vs Phase 3 oncology by sponsor class",
+    "request": {
+      "query": "Compare Phase 2 and Phase 3 oncology trials by sponsor class.",
+      "condition": "Neoplasms",
+      "start_year": 2021,
+      "end_year": 2025,
+      "preferred_visualization": "grouped_bar_chart"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "grouped_bar_chart",
+      "non_empty_data": true,
+      "has_citations": true
+    }
+  },
+  {
+    "id": "grouped_hf",
+    "description": "Heart failure phases by industry vs academic",
+    "request": {
+      "query": "Compare heart failure trial phases between industry and academic sponsors.",
+      "condition": "Heart Failure",
+      "preferred_visualization": "grouped_bar_chart"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "grouped_bar_chart",
+      "non_empty_data": true,
+      "has_citations": true
+    }
+  },
+  {
+    "id": "compare_drugs",
+    "description": "Pembrolizumab vs Nivolumab phase distribution — multi-call",
+    "request": {
+      "query": "Compare Pembrolizumab vs Nivolumab phase distribution.",
+      "preferred_visualization": "grouped_bar_chart"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "grouped_bar_chart",
+      "non_empty_data": true,
+      "has_citations": true
+    }
+  },
+  {
+    "id": "compare_countries",
+    "description": "US vs Germany oncology by phase — multi-call",
+    "request": {
+      "query": "Compare oncology trials in the United States vs Germany by phase.",
+      "condition": "Neoplasms",
+      "preferred_visualization": "grouped_bar_chart"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "grouped_bar_chart",
+      "non_empty_data": true,
+      "has_citations": true
+    }
+  },
+  {
+    "id": "compare_status",
+    "description": "Recruiting vs completed Alzheimer's by phase — multi-call",
+    "request": {
+      "query": "Compare recruiting vs completed Alzheimer's trials by phase.",
+      "condition": "Alzheimer Disease",
+      "preferred_visualization": "grouped_bar_chart"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "grouped_bar_chart",
+      "non_empty_data": true,
+      "has_citations": true
+    }
+  },
+  {
+    "id": "line",
+    "description": "Diabetes enrollment trend over years",
+    "request": {
+      "query": "Show median enrollment for completed diabetes trials by year.",
+      "condition": "Diabetes Mellitus",
+      "status": "completed",
+      "preferred_visualization": "line_chart"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type_any": ["line_chart", "time_series", "scatter_chart"],
+      "non_empty_data": true,
+      "has_citations": true
+    }
+  },
+  {
+    "id": "time",
+    "description": "Pembrolizumab trial starts by year",
+    "request": {
+      "query": "How many Pembrolizumab trials started each year since 2015?",
+      "drug_name": "Pembrolizumab",
+      "start_year": 2015,
+      "preferred_visualization": "time_series"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "time_series",
+      "non_empty_data": true,
+      "has_citations": true
+    }
+  },
+  {
+    "id": "time_covid",
+    "description": "COVID-19 trial registrations 2020–2024",
+    "request": {
+      "query": "How did new COVID-19 trial registrations change between 2020 and 2024?",
+      "condition": "COVID-19",
+      "start_year": 2020,
+      "end_year": 2024,
+      "preferred_visualization": "time_series"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "time_series",
+      "non_empty_data": true,
+      "has_citations": true
+    }
+  },
+  {
+    "id": "network",
+    "description": "Sponsor-condition network for immunotherapy",
+    "request": {
+      "query": "Map sponsors connected to immunotherapy conditions.",
+      "condition": "Immunotherapy",
+      "preferred_visualization": "network_graph"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "network_graph",
+      "non_empty_nodes": true,
+      "non_empty_edges": true
+    }
+  },
+  {
+    "id": "network_glp1",
+    "description": "GLP-1 drug-to-condition network",
+    "request": {
+      "query": "Show how GLP-1 drugs like semaglutide and tirzepatide connect to conditions.",
+      "condition": "Obesity",
+      "preferred_visualization": "network_graph"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "network_graph",
+      "non_empty_nodes": true,
+      "non_empty_edges": true
+    }
+  },
+  {
+    "id": "scatter",
+    "description": "Oncology trial complexity by start year",
+    "request": {
+      "query": "Show how oncology trial intervention counts changed by start year.",
+      "condition": "Neoplasms",
+      "start_year": 2018,
+      "end_year": 2024,
+      "preferred_visualization": "scatter_chart"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "scatter_chart",
+      "non_empty_data": true,
+      "has_citations": true
+    }
+  },
+  {
+    "id": "histogram",
+    "description": "COVID-19 trial year distribution",
+    "request": {
+      "query": "Show the distribution of COVID-19 trial registrations across year ranges.",
+      "condition": "COVID-19",
+      "preferred_visualization": "histogram"
+    },
+    "expected": {
+      "status": "visualization",
+      "visualization_type": "histogram",
+      "non_empty_data": true,
+      "has_citations": true
+    }
+  },
+  {
+    "id": "message",
+    "description": "Out-of-scope query — should return message",
+    "request": {
+      "query": "What is the best recipe for chocolate chip cookies?",
+      "preferred_visualization": "bar_chart"
+    },
+    "expected": {
+      "status": "message",
+      "reason": "unsupported_query"
+    }
+  },
+  {
+    "id": "insufficient",
+    "description": "No matching data — should return message",
+    "request": {
+      "query": "Find active trials for a brand-new experimental intervention with no registered studies.",
+      "preferred_visualization": "bar_chart"
+    },
+    "expected": {
+      "status": "message"
+    }
+  }
+]

@@ -41,13 +41,20 @@ system_template: |
     2. Use 2–4 calls for "X vs Y", "compare A and B", or any multi-entity comparison.
     3. Multi-call plans must use agg_type "by_phase_per_label".
     4. Set max_records to 100 for single-call plans; divide 100 evenly across calls for multi-call plans, minimum 50 per call.
-    5. Choose agg_type based on the query intent:
-       - "over time", "trend", "change", year ranges → by_year
-       - "vs", "compare", multi-entity → by_phase_per_label (multi-call)
-       - phase distribution → by_phase
-       - status distribution → by_status
-       - geographic, "which countries", "by country", "per country" → by_country
-       - sponsors → by_sponsor
+    5. Choose agg_type based on the query intent and preferred_visualization:
+       - preferred_visualization="scatter_chart" → scatter_by_year
+       - preferred_visualization="histogram" → histogram_by_year
+       - preferred_visualization="network_graph" + drug query → drug_condition_network
+       - preferred_visualization="network_graph" + sponsor/institution query → drug_sponsor_network
+       - preferred_visualization="time_series" or "line_chart", or "over time", "trend", "change", "by year" → by_year
+       - preferred_visualization="grouped_bar_chart", or "vs", "compare", multi-entity → by_phase_per_label (multi-call)
+       - preferred_visualization="bar_chart" → choose bar sub-type based on query:
+           - geographic, "which countries", "by country", "per country" → by_country
+           - sponsors → by_sponsor
+           - status distribution → by_status
+           - phase distribution → by_phase
+       - "intervention counts", "interventions per trial", complexity → scatter_by_year
+       - "distribution", "histogram", "year ranges", "bins" → histogram_by_year
        - drug–condition relationships, "connect to conditions", "treat" → drug_condition_network
        - drug co-occurrence, "same trials", "combination" → drug_cooccurrence_network
        - drug–sponsor relationships → drug_sponsor_network
@@ -95,6 +102,21 @@ system_template: |
   Intent: {{"condition": "COVID-19", "start_year": 2020, "end_year": 2024}}
   Output:
   {{"calls": [{{"label": "COVID-19 Trials", "condition": "COVID-19", "start_year": 2020, "end_year": 2024, "max_records": 100}}], "agg_type": "by_year"}}
+
+  Query: "Show how oncology trial intervention counts changed by start year."
+  Intent: {{"condition": "Neoplasms", "start_year": 2018, "end_year": 2024, "preferred_visualization": "scatter_chart"}}
+  Output:
+  {{"calls": [{{"label": "Oncology Trials", "condition": "Neoplasms", "start_year": 2018, "end_year": 2024, "max_records": 100}}], "agg_type": "scatter_by_year"}}
+
+  Query: "Show the distribution of COVID-19 trial registrations across year ranges."
+  Intent: {{"condition": "COVID-19", "preferred_visualization": "histogram"}}
+  Output:
+  {{"calls": [{{"label": "COVID-19 Trials", "condition": "COVID-19", "max_records": 100}}], "agg_type": "histogram_by_year"}}
+
+  Query: "Show how GLP-1 drugs like semaglutide and tirzepatide connect to conditions."
+  Intent: {{"condition": "Obesity", "preferred_visualization": "network_graph"}}
+  Output:
+  {{"calls": [{{"label": "GLP-1 Trials", "condition": "Obesity", "max_records": 100}}], "agg_type": "drug_condition_network"}}
 
 human_template: |
   {capabilities}

@@ -7,10 +7,6 @@ info:
     Converts natural-language questions about clinical trials into interactive
     visualizations backed by ClinicalTrials.gov data.
 
-    ## Data modes
-    - **cache** — returns pre-computed fixture data instantly (default).
-    - **live** — queries ClinicalTrials.gov in real time and runs the LLM pipeline.
-
     ## Streaming
     `POST /visualizations/stream` emits Server-Sent Events while the pipeline runs,
     so the UI can show per-node progress before the final response arrives.
@@ -40,7 +36,7 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [status, service, default_data_mode]
+                required: [status, service]
                 properties:
                   status:
                     type: string
@@ -48,10 +44,6 @@ paths:
                   service:
                     type: string
                     example: Clinical Trials Query-to-Visualization API
-                  default_data_mode:
-                    type: string
-                    enum: [cache, live]
-                    example: cache
 
   /examples:
     get:
@@ -88,24 +80,18 @@ paths:
               $ref: "#/components/schemas/VisualizationRequest"
             examples:
               bar_chart:
-                summary: Country bar chart (cache)
+                summary: Country bar chart
                 value:
                   query: Which countries have the most recruiting Alzheimer's trials?
                   condition: Alzheimer Disease
                   status: recruiting
                   preferred_visualization: bar_chart
-                  data_mode: cache
-                  max_records: 500
-                  citation_limit: 5
               network_graph:
-                summary: Sponsor-condition network (cache)
+                summary: Sponsor-condition network
                 value:
                   query: Map sponsors connected to immunotherapy conditions.
                   condition: Immunotherapy
                   preferred_visualization: network_graph
-                  data_mode: cache
-                  max_records: 500
-                  citation_limit: 3
       responses:
         "200":
           description: |
@@ -284,12 +270,6 @@ components:
           maximum: 2100
           description: Filter trials that started on or before this year.
           example: 2024
-        max_records:
-          type: integer
-          default: 500
-          minimum: 1
-          maximum: 1000
-          description: Maximum number of trial records to retrieve.
         preferred_visualization:
           type: string
           nullable: true
@@ -306,24 +286,15 @@ components:
             - timeseries
             - network
             - network_graph
+            - scatter
+            - scatter_chart
+            - scatter_plot
+            - histogram
+            - hist
+            - distribution
           description: |
             Preferred chart type hint. The pipeline may choose a different type
             if the data does not support the requested visualization.
-        data_mode:
-          type: string
-          enum: [cache, live]
-          default: cache
-          description: |
-            `cache` returns pre-computed fixture data instantly.
-            `live` queries ClinicalTrials.gov and runs the full LLM pipeline.
-        citation_limit:
-          type: integer
-          default: 10
-          minimum: 0
-          maximum: 25
-          description: |
-            Maximum number of source citations attached per data point, node,
-            or edge. `0` disables citations entirely.
 
     # -------------------------------------------------------------------------
     # Responses
@@ -371,6 +342,10 @@ components:
             type: string
           description: Assumptions the LLM made when interpreting the query.
           default: []
+        insight:
+          type: string
+          nullable: true
+          description: Optional LLM-generated insight summarizing the visualization.
 
     VisualizationMessageResponse:
       type: object
@@ -391,7 +366,6 @@ components:
           enum:
             - vague_query
             - unsupported_query
-            - cache_miss
             - llm_failure
             - api_failure
             - insufficient_data
@@ -400,7 +374,6 @@ components:
             Machine-readable reason code.
             - `vague_query` — query lacks enough specifics to retrieve useful data.
             - `unsupported_query` — query is out of scope for clinical trial data.
-            - `cache_miss` — no cached fixture matches the query in cache mode.
             - `llm_failure` — the LLM call failed or returned invalid output.
             - `api_failure` — ClinicalTrials.gov API call failed.
             - `insufficient_data` — records were retrieved but too few to visualize.
@@ -420,14 +393,11 @@ components:
 
     ResponseMetadata:
       type: object
-      required: [source, data_mode, filters, records_retrieved, records_used, generated_at]
+      required: [source, filters, records_retrieved, records_used, generated_at]
       properties:
         source:
           type: string
           enum: [clinicaltrials.gov]
-        data_mode:
-          type: string
-          enum: [cache, live]
         filters:
           type: object
           additionalProperties: true
@@ -456,8 +426,9 @@ components:
     VisualizationSpec:
       description: |
         Discriminated union on `type`.
-        Chart types (`bar_chart`, `grouped_bar_chart`, `line_chart`, `time_series`)
-        use `ChartVisualizationSpec`. `network_graph` uses `NetworkVisualizationSpec`.
+        Chart types (`bar_chart`, `grouped_bar_chart`, `line_chart`, `time_series`,
+        `scatter_chart`, `histogram`) use `ChartVisualizationSpec`.
+        `network_graph` uses `NetworkVisualizationSpec`.
       oneOf:
         - $ref: "#/components/schemas/ChartVisualizationSpec"
         - $ref: "#/components/schemas/NetworkVisualizationSpec"
@@ -468,6 +439,8 @@ components:
           grouped_bar_chart: "#/components/schemas/ChartVisualizationSpec"
           line_chart: "#/components/schemas/ChartVisualizationSpec"
           time_series: "#/components/schemas/ChartVisualizationSpec"
+          scatter_chart: "#/components/schemas/ChartVisualizationSpec"
+          histogram: "#/components/schemas/ChartVisualizationSpec"
           network_graph: "#/components/schemas/NetworkVisualizationSpec"
 
     ChartVisualizationSpec:
@@ -476,7 +449,7 @@ components:
       properties:
         type:
           type: string
-          enum: [bar_chart, grouped_bar_chart, line_chart, time_series]
+          enum: [bar_chart, grouped_bar_chart, line_chart, time_series, scatter_chart, histogram]
         title:
           type: string
           example: Trials by Start Year
@@ -715,16 +688,6 @@ components:
         preferred_visualization:
           type: string
           nullable: true
-        data_mode:
-          type: string
-          enum: [cache, live]
-          default: cache
-        max_records:
-          type: integer
-          default: 500
-        citation_limit:
-          type: integer
-          default: 10
 
     # -------------------------------------------------------------------------
     # SSE event shapes (informational — not enforced by the stream response)

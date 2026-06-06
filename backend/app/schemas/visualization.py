@@ -76,6 +76,8 @@ class ChartVisualizationSpec(BaseVisualizationSpec):
         VisualizationType.GROUPED_BAR_CHART,
         VisualizationType.LINE_CHART,
         VisualizationType.TIME_SERIES,
+        VisualizationType.SCATTER_CHART,
+        VisualizationType.HISTOGRAM,
     ]
     data: list[ChartDatum]
 
