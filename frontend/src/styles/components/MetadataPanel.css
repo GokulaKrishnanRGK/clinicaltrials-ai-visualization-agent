@@ -27,6 +27,8 @@
   gap: 5px;
   margin: 0;
   padding-left: 16px;
+  max-height: 160px;
+  overflow-y: auto;
 }
 
 .notice-grid {
@@ -40,4 +42,20 @@
 
 .message-panel p {
   color: var(--text-2);
+}
+
+.metadata-panel--loading {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  min-height: 80px;
+}
+
+.metadata-loader {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: chart-spin 0.75s linear infinite;
 }

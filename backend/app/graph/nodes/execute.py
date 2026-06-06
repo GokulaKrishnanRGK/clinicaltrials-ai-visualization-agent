@@ -59,6 +59,21 @@ async def execute_tools(state: GraphState) -> dict[str, Any]:
         len(result.records),
         len(result.warnings),
     )
+    if logger.isEnabledFor(10) and result.records:
+        preview = [
+            {
+                "nct_id": d.get("nct_id"),
+                "title": (d.get("brief_title") or "")[:60],
+                "status": d.get("overall_status"),
+            }
+            for d in (r.model_dump(mode="json") for r in result.records[:3])
+        ]
+        logger.debug(
+            "execute_tools records_preview request_id=%s total=%d preview=%s",
+            rid,
+            len(result.records),
+            preview,
+        )
     return {
         "records": [r.model_dump(mode="json") for r in result.records],
         "records_retrieved": result.records_retrieved,

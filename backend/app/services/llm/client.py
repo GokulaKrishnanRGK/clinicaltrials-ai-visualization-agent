@@ -76,7 +76,7 @@ class LLMClient:
             )
 
             try:
-                payload = json.loads(content)
+                payload = json.loads(_strip_code_fence(content))
             except json.JSONDecodeError as exc:
                 logger.warning("llm_json_parse_error prompt=%s attempt=%d error=%s", prompt_id, attempt, exc)
                 last_error = LLMClientError(f"LLM response was not valid JSON: {exc}")
@@ -107,3 +107,17 @@ class LLMClient:
     @staticmethod
     def _response_model_name(response_model: Any) -> str:
         return getattr(response_model, "__name__", repr(response_model))
+
+
+def _strip_code_fence(text: str) -> str:
+    """Remove a leading ```json / ``` fence and trailing ``` that some models add."""
+    stripped = text.strip()
+    if stripped.startswith("```"):
+        # Drop the opening fence line (```json, ```JSON, ``` …)
+        first_newline = stripped.find("\n")
+        if first_newline != -1:
+            stripped = stripped[first_newline + 1 :]
+        # Drop the closing fence
+        if stripped.endswith("```"):
+            stripped = stripped[: stripped.rfind("```")]
+    return stripped.strip()

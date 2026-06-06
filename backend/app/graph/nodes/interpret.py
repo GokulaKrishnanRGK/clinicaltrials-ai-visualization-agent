@@ -51,6 +51,12 @@ async def interpret_question(state: GraphState) -> dict[str, Any]:
             variables={"query": state["query"], "request": intent_from_state(state)},
         )
 
+        logger.debug(
+            "interpret_question parsed request_id=%s fields=%s",
+            rid,
+            parsed.model_dump(exclude={"assumptions", "warnings"}),
+        )
+
         if not parsed.in_scope:
             logger.info("interpret_question out_of_scope request_id=%s query=%r", rid, state["query"][:120])
             meta = build_meta(state, records_retrieved=0, records_used=0)
@@ -77,17 +83,31 @@ async def interpret_question(state: GraphState) -> dict[str, Any]:
             "assumptions": parsed.assumptions,
             "warnings": parsed.warnings,
         }
-    except Exception:
-        logger.warning("interpret_question failed request_id=%s — falling back to raw state", rid, exc_info=True)
+    except Exception as exc:
+        logger.warning(
+            "interpret_question failed request_id=%s error=%s — falling back to raw state",
+            rid,
+            exc,
+            exc_info=True,
+        )
+        fallback = intent_from_state(state)
+        active = {k: v for k, v in fallback.items() if v is not None}
+        logger.info("interpret_question fallback request_id=%s fields=%s", rid, active)
         return {
-            "interpreted": intent_from_state(state),
+            "interpreted": fallback,
             "assumptions": [],
             "warnings": [],
         }
 
 
 def create_retrieval_plan(state: GraphState) -> dict[str, Any]:
+    rid = state["request_id"]
     intent = state.get("interpreted") or intent_from_state(state)
+    logger.debug(
+        "create_retrieval_plan input request_id=%s intent=%s",
+        rid,
+        {k: v for k, v in intent.items() if v is not None},
+    )
     params: dict[str, Any] = {
         "query": state["query"],
         "max_records": state["max_records"],
@@ -98,4 +118,5 @@ def create_retrieval_plan(state: GraphState) -> dict[str, Any]:
     for key in ("start_year", "end_year"):
         if intent.get(key) is not None:
             params[key] = intent[key]
+    logger.debug("create_retrieval_plan request_id=%s params=%s", rid, params)
     return {"retrieval_params": params}

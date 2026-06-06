@@ -58,8 +58,13 @@ def aggregate_data(state: GraphState) -> dict[str, Any]:
     agg_type = _choose_agg_type(state)
     limit = state["citation_limit"]
     logger.debug(
-        "aggregate_data request_id=%s agg_type=%s record_count=%d citation_limit=%d",
-        rid, agg_type, len(records), limit,
+        "aggregate_data input request_id=%s agg_type=%s record_count=%d "
+        "citation_limit=%d preferred_viz=%s",
+        rid,
+        agg_type,
+        len(records),
+        limit,
+        state.get("preferred_visualization"),
     )
 
     if agg_type == "by_year":
@@ -86,6 +91,10 @@ def aggregate_data(state: GraphState) -> dict[str, Any]:
 
     row_count = len(data) if isinstance(data, list) else 1
     logger.info(
-        "aggregate_data complete request_id=%s agg_type=%s rows=%d", rid, agg_type, row_count
+        "aggregate_data output request_id=%s agg_type=%s rows=%d", rid, agg_type, row_count
     )
+    if logger.isEnabledFor(10) and isinstance(data, list) and data:
+        # Log only the non-citation keys of the first row to avoid wall-of-text dumps.
+        first = {k: v for k, v in data[0].items() if k != "citations"}
+        logger.debug("aggregate_data sample request_id=%s first_row=%s", rid, first)
     return {"agg_type": agg_type, "agg_data": data}

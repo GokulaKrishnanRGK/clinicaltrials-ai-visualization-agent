@@ -3,9 +3,18 @@ import "../styles/components/MetadataPanel.css";
 
 type MetadataPanelProps = {
   response: VisualizationApiResponse;
+  loading?: boolean;
 };
 
-export function MetadataPanel({ response }: MetadataPanelProps) {
+export function MetadataPanel({ response, loading }: MetadataPanelProps) {
+  if (loading) {
+    return (
+      <section className="metadata-panel metadata-panel--loading" aria-busy aria-live="polite">
+        <div className="metadata-loader" role="status" aria-label="Loading metadata" />
+      </section>
+    );
+  }
+
   if (response.status === "message") {
     return (
       <section className="metadata-panel message-panel">

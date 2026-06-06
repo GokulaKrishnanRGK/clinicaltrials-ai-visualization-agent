@@ -104,6 +104,7 @@ class ClinicalTrialsGovClient:
                 continue
 
             if response.is_success:
+                logger.debug("ct_api_request_url url=%s", str(response.request.url))
                 return self._parse_json(response)
 
             if response.status_code in _RETRYABLE_STATUSES:

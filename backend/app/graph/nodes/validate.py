@@ -22,6 +22,11 @@ _SUGGESTED_QUERIES = [
 def validate_response(state: GraphState) -> dict[str, Any]:
     rid = state["request_id"]
     raw = state.get("final_response")
+    logger.debug(
+        "validate_response input request_id=%s status=%s",
+        rid,
+        raw.get("status") if isinstance(raw, dict) else None,
+    )
     if not raw:
         logger.warning("validate_response no response generated request_id=%s", rid)
         meta = build_meta(state, records_retrieved=0, records_used=0)
@@ -44,7 +49,12 @@ def validate_response(state: GraphState) -> dict[str, Any]:
             meta=meta,
         )
         return {"final_response": msg.model_dump(mode="json")}
-    logger.debug("validate_response ok request_id=%s", rid)
+    viz_type = (
+        raw.get("visualization", {}).get("type")
+        if isinstance(raw, dict)
+        else None
+    )
+    logger.debug("validate_response ok request_id=%s viz_type=%s", rid, viz_type)
     return {}
 
 
@@ -68,5 +78,11 @@ def message_insufficient(state: GraphState) -> dict[str, Any]:
         reason="insufficient_data",
         suggested_queries=_SUGGESTED_QUERIES,
         meta=meta,
+    )
+    logger.debug(
+        "message_insufficient output request_id=%s reason=%s message=%r",
+        rid,
+        msg.reason,
+        msg.message[:80],
     )
     return {"final_response": msg.model_dump(mode="json")}

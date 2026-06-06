@@ -112,11 +112,19 @@ class ClinicalTrialsToolInvoker:
     def _params_from_filters(
         self, filters: dict[str, str | int], max_records: int
     ) -> dict[str, str | int]:
+        # query.term is a full-text search over trial titles and descriptions.
+        # When specific field filters (condition, drug, sponsor, country) are present
+        # the natural-language question would restrict results to 0, so omit it.
+        _specific_fields = {"condition", "drug_name", "sponsor", "country"}
+        has_specific = any(k in filters for k in _specific_fields)
+
         params: dict[str, str | int] = {
             "format": "json",
             "pageSize": max_records,
-            "query.term": str(filters["query"]),
         }
+        if not has_specific:
+            params["query.term"] = str(filters["query"])
+
         if "condition" in filters:
             params["query.cond"] = str(filters["condition"])
         if "drug_name" in filters:

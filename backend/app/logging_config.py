@@ -9,6 +9,32 @@ import logging
 import logging.handlers
 from pathlib import Path
 
+# Third-party loggers that produce noise at any level.  Always capped at WARNING
+# so real errors still surface but debug/info chatter is silenced.
+_SILENT_LOGGERS = (
+    "httpcore",
+    "httpx",
+    "botocore",
+    "aiobotocore",
+    "s3transfer",
+    "urllib3",
+    "litellm",
+    "LiteLLM",
+    "uvicorn.access",
+)
+
+
+class _AppFormatter(logging.Formatter):
+    """Strip the 'app.' package prefix from logger names for readability."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        # Avoid mutating the shared LogRecord; clone the name temporarily.
+        original_name = record.name
+        record.name = record.name.removeprefix("app.")
+        result = super().format(record)
+        record.name = original_name
+        return result
+
 
 def configure_logging() -> None:
     from app.config import settings  # local import — keeps get_logger() import-safe everywhere
@@ -16,7 +42,7 @@ def configure_logging() -> None:
     level_name = settings.log_level.upper()
     level = getattr(logging, level_name, logging.INFO)
 
-    fmt = logging.Formatter(
+    fmt = _AppFormatter(
         "%(asctime)s [%(levelname)-8s] %(name)s: %(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S",
     )
@@ -36,18 +62,13 @@ def configure_logging() -> None:
 
     root = logging.getLogger()
     root.setLevel(level)
-    if not root.handlers:
-        root.addHandler(console)
-        root.addHandler(file_handler)
-    else:
-        root.handlers.clear()
-        root.addHandler(console)
-        root.addHandler(file_handler)
+    root.handlers.clear()
+    root.addHandler(console)
+    root.addHandler(file_handler)
 
-    # Suppress noisy third-party loggers unless we're in DEBUG mode
-    if level > logging.DEBUG:
-        for name in ("httpx", "httpcore", "litellm", "LiteLLM", "uvicorn.access"):
-            logging.getLogger(name).setLevel(logging.WARNING)
+    # Always suppress third-party noise regardless of LOG_LEVEL.
+    for name in _SILENT_LOGGERS:
+        logging.getLogger(name).setLevel(logging.WARNING)
 
 
 def get_logger(name: str) -> logging.Logger:

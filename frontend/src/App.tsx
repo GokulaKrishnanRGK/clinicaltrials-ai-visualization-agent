@@ -20,6 +20,7 @@ export function App() {
   const [selectedId, setSelectedId] = useState(localExamples[0].id);
   const [query, setQuery] = useState(localExamples[0].request.query);
   const [citationLimit, setCitationLimit] = useState(localExamples[0].request.citation_limit);
+  const [maxRecords, setMaxRecords] = useState(localExamples[0].request.max_records);
 
   const { data: remoteExamples } = useGetExamplesQuery();
   const stream = useVisualizationStream();
@@ -36,12 +37,14 @@ export function App() {
       ...selectedLocal.request,
       query,
       citation_limit: citationLimit,
+      max_records: maxRecords,
     }),
-    [citationLimit, query, selectedLocal.request],
+    [citationLimit, maxRecords, query, selectedLocal.request],
   );
 
   const exampleResponse = selectedLocal.response;
 
+  const loading = stream.streaming && stream.finalResponse === null;
   const response = stream.finalResponse ?? exampleResponse;
   const showTimeline = stream.streaming || stream.nodes.length > 0;
 
@@ -50,6 +53,7 @@ export function App() {
     setSelectedId(next.id);
     setQuery(next.request.query);
     setCitationLimit(next.request.citation_limit);
+    setMaxRecords(next.request.max_records);
     stream.reset();
   };
 
@@ -70,10 +74,12 @@ export function App() {
               selectedId={selectedId}
               query={query}
               citationLimit={citationLimit}
+              maxRecords={maxRecords}
               isSubmitting={stream.streaming}
               onExampleChange={selectExample}
               onQueryChange={setQuery}
               onCitationLimitChange={setCitationLimit}
+              onMaxRecordsChange={setMaxRecords}
               onSubmit={() => stream.submit(request)}
             />
             {showTimeline && (
@@ -84,8 +90,8 @@ export function App() {
               />
             )}
           </div>
-          <ChartSurface response={response} citationLimit={citationLimit} />
-          <MetadataPanel response={response} />
+          <ChartSurface response={response} citationLimit={citationLimit} loading={loading} />
+          <MetadataPanel response={response} loading={loading} />
         </div>
 
         {showJson && (

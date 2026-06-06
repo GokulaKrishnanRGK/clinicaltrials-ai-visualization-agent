@@ -118,8 +118,15 @@ def generate_visualization_spec(state: GraphState) -> dict[str, Any]:
     rid = state["request_id"]
     agg_type = state["agg_type"]
     agg_data = state["agg_data"]
+    agg_rows = len(agg_data) if isinstance(agg_data, list) else 1
     title = _CHART_TITLES.get(agg_type, state["query"][:80])
-    logger.debug("generate_visualization_spec request_id=%s agg_type=%s title=%r", rid, agg_type, title)
+    logger.debug(
+        "generate_visualization_spec input request_id=%s agg_type=%s agg_rows=%d title=%r",
+        rid,
+        agg_type,
+        agg_rows,
+        title,
+    )
 
     if agg_type in ("drug_sponsor_network", "drug_cooccurrence_network"):
         spec = NetworkVisualizationSpec(
@@ -132,6 +139,14 @@ def generate_visualization_spec(state: GraphState) -> dict[str, Any]:
                 legend=True,
             ),
             data=agg_data,
+        )
+        logger.debug(
+            "generate_visualization_spec data_sample request_id=%s encoding=%s "
+            "nodes=%d edges=%d",
+            rid,
+            _NETWORK_ENCODING,
+            len(agg_data.nodes) if hasattr(agg_data, "nodes") else 0,
+            len(agg_data.edges) if hasattr(agg_data, "edges") else 0,
         )
     else:
         default_config = (
@@ -146,6 +161,17 @@ def generate_visualization_spec(state: GraphState) -> dict[str, Any]:
             render_hints=render_hints,
             data=[ChartDatum.model_validate(d) for d in agg_data],
         )
+        if logger.isEnabledFor(10) and isinstance(agg_data, list):
+            data_sample = [
+                {k: v for k, v in row.items() if k != "citations"}
+                for row in agg_data[:2]
+            ]
+            logger.debug(
+                "generate_visualization_spec data_sample request_id=%s encoding=%s sample=%s",
+                rid,
+                encoding,
+                data_sample,
+            )
 
     records = state.get("records", [])
     meta = build_meta(
@@ -161,9 +187,10 @@ def generate_visualization_spec(state: GraphState) -> dict[str, Any]:
         assumptions=state.get("assumptions", []),
     )
     logger.info(
-        "generate_visualization_spec complete request_id=%s viz_type=%s records_used=%d",
+        "generate_visualization_spec output request_id=%s viz_type=%s records_used=%d title=%r",
         rid,
         spec.type.value,
         len(records),
+        title,
     )
     return {"final_response": response.model_dump(mode="json")}

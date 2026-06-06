@@ -26,14 +26,15 @@ def assess_data_sufficiency(state: GraphState) -> dict[str, Any]:
 
     if sufficient:
         logger.debug(
-            "assess_data_sufficiency sufficient request_id=%s record_count=%d",
+            "assess_data_sufficiency output request_id=%s "
+            "record_count=%d records_sufficient=True",
             rid,
             record_count,
         )
     else:
         logger.info(
-            "assess_data_sufficiency insufficient request_id=%s "
-            "record_count=%d min=%d repair_count=%d",
+            "assess_data_sufficiency output request_id=%s "
+            "record_count=%d min=%d repair_count=%d records_sufficient=False",
             rid,
             record_count,
             _MIN_RECORDS,
@@ -47,6 +48,9 @@ def repair_plan(state: GraphState) -> dict[str, Any]:
     rid = state["request_id"]
     params = dict(state.get("retrieval_params") or {})
     repair_count = state.get("repair_count", 0)
+    logger.debug(
+        "repair_plan input request_id=%s attempt=%d params=%s", rid, repair_count + 1, params
+    )
 
     removed = False
     for key in ("trial_phase", "status", "country"):
@@ -70,4 +74,5 @@ def repair_plan(state: GraphState) -> dict[str, Any]:
             new_max,
         )
 
+    logger.debug("repair_plan output request_id=%s params=%s", rid, params)
     return {"retrieval_params": params, "repair_count": repair_count + 1}

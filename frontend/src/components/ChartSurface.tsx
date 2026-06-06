@@ -8,9 +8,18 @@ import type { VisualizationApiResponse } from "../types";
 type ChartSurfaceProps = {
   response: VisualizationApiResponse;
   citationLimit: number;
+  loading?: boolean;
 };
 
-export function ChartSurface({ response, citationLimit }: ChartSurfaceProps) {
+export function ChartSurface({ response, citationLimit, loading }: ChartSurfaceProps) {
+  if (loading) {
+    return (
+      <section className="chart-panel chart-panel--loading" aria-busy aria-live="polite">
+        <div className="chart-loader" role="status" aria-label="Loading visualization" />
+      </section>
+    );
+  }
+
   if (response.status === "message") {
     return (
       <section className="chart-empty" aria-live="polite">
