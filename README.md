@@ -1,5 +1,7 @@
 # ClinicalTrials.gov Query-to-Visualization Agent
 
+**GitHub:** https://github.com/GokulaKrishnanRGK/clinicaltrials-ai-visualization-agent
+
 A backend service and React dashboard that converts natural-language clinical trial questions into structured, source-backed visualization outputs — powered by a LangGraph ReAct agent, ClinicalTrials.gov API v2, and Claude on AWS Bedrock.
 
 ---
