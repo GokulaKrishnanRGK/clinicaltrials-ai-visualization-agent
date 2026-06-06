@@ -1,21 +1,35 @@
-id: query_parser
+name: query_parser
 version: v1
 description: Extract normalized clinical trial search intent from a user query.
-messages:
-  - role: system
-    content: |
-      You convert natural-language clinical trial visualization requests into strict JSON.
-      Return only JSON that matches the requested schema. Do not include Markdown.
-      Use null for unknown filters. Preserve the user's meaning without inventing drugs,
-      conditions, sponsors, countries, years, trial phases, or study statuses.
-  - role: user
-    content: |
-      User query:
-      ${query}
+model_preference: bedrock/global.anthropic.claude-sonnet-4-6
+output_format: json
+system_template: |
+  You convert natural-language clinical trial visualization requests into strict JSON.
+  Return only JSON that matches the requested schema. Do not include Markdown.
+  Use null for unknown filters. Preserve the user's meaning without inventing drugs,
+  conditions, sponsors, countries, years, trial phases, or study statuses.
+human_template: |
+  User query:
+  {query}
 
-      Existing request fields, already validated by the API when present:
-      ${request}
+  Existing request fields, already validated by the API when present:
+  {request}
 
-      Extract or confirm these fields for downstream ClinicalTrials.gov retrieval:
-      drug_name, condition, trial_phase, sponsor, country, status, start_year, end_year,
-      preferred_visualization, assumptions, warnings.
+  Extract or confirm these fields for downstream ClinicalTrials.gov retrieval:
+  drug_name, condition, trial_phase, sponsor, country, status, start_year, end_year,
+  preferred_visualization, assumptions, warnings.
+variables:
+  - query
+  - request
+fallback_output:
+  drug_name: null
+  condition: null
+  trial_phase: null
+  sponsor: null
+  country: null
+  status: null
+  start_year: null
+  end_year: null
+  preferred_visualization: null
+  assumptions: []
+  warnings: []

@@ -47,7 +47,7 @@ class LLMClient:
     ) -> ResponseModelT:
         prompt = self.registry.render(prompt_id, variables, version=version)
         response = await self.completion_fn(
-            model=model or self.model,
+            model=model or prompt.model_preference or self.model,
             messages=[message.model_dump() for message in prompt.messages],
             temperature=self.temperature if temperature is None else temperature,
             max_tokens=self.max_tokens if max_tokens is None else max_tokens,
