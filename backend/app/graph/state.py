@@ -20,6 +20,7 @@ class GraphState(TypedDict):
     assumptions: list[str]
     warnings: list[str]
 
+    retrieval_plan: dict[str, Any]
     retrieval_params: dict[str, Any]
     records: list[dict[str, Any]]
     records_retrieved: int

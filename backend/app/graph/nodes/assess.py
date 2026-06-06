@@ -46,33 +46,25 @@ def assess_data_sufficiency(state: GraphState) -> dict[str, Any]:
 
 def repair_plan(state: GraphState) -> dict[str, Any]:
     rid = state["request_id"]
-    params = dict(state.get("retrieval_params") or {})
     repair_count = state.get("repair_count", 0)
+    plan = dict(state.get("retrieval_plan") or {})
+    calls = [dict(c) for c in plan.get("calls") or []]
+
     logger.debug(
-        "repair_plan input request_id=%s attempt=%d params=%s", rid, repair_count + 1, params
+        "repair_plan input request_id=%s attempt=%d calls=%d",
+        rid, repair_count + 1, len(calls),
     )
 
-    removed = False
-    for key in ("trial_phase", "status", "country"):
-        if key in params:
-            params.pop(key)
-            removed = True
-            logger.info(
-                "repair_plan request_id=%s attempt=%d dropped_filter=%s",
-                rid,
-                repair_count + 1,
-                key,
-            )
-            break
-    if not removed:
-        new_max = min(params.get("max_records", state["max_records"]) * 2, 1000)
-        params["max_records"] = new_max
-        logger.info(
-            "repair_plan request_id=%s attempt=%d expanded_max_records=%d",
-            rid,
-            repair_count + 1,
-            new_max,
-        )
+    for call in calls:
+        old = call.get("max_records", 200)
+        call["max_records"] = min(old * 2, 500)
 
-    logger.debug("repair_plan output request_id=%s params=%s", rid, params)
-    return {"retrieval_params": params, "repair_count": repair_count + 1}
+    new_max = calls[0]["max_records"] if calls else 200
+    logger.info(
+        "repair_plan request_id=%s attempt=%d expanded_max_records_per_call=%d",
+        rid, repair_count + 1, new_max,
+    )
+
+    plan["calls"] = calls
+    logger.debug("repair_plan output request_id=%s plan=%s", rid, plan)
+    return {"retrieval_plan": plan, "repair_count": repair_count + 1}

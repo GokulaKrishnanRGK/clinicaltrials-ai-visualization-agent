@@ -25,9 +25,13 @@ const baseMeta = (
 });
 
 export const examples: Example[] = [
+  // ── Bar Charts ────────────────────────────────────────────────────────────
   {
     id: "bar",
     label: "Alzheimer's trials by country",
+    category: "bar",
+    chartType: "Bar Chart",
+    toolCalls: 1,
     request: {
       query: "Which countries have the most recruiting Alzheimer's trials?",
       condition: "Alzheimer Disease",
@@ -69,30 +73,8 @@ export const examples: Example[] = [
               ),
             ],
           },
-          {
-            country: "United Kingdom",
-            trial_count: 11,
-            citations: [
-              citation(
-                "NCT04468659",
-                "protocolSection.contactsLocationsModule.locations",
-                "United Kingdom",
-                "Memory Clinic Recruitment Study",
-              ),
-            ],
-          },
-          {
-            country: "Japan",
-            trial_count: 8,
-            citations: [
-              citation(
-                "NCT05269394",
-                "protocolSection.statusModule.overallStatus",
-                "RECRUITING",
-                "Amyloid Reduction Follow-up",
-              ),
-            ],
-          },
+          { country: "United Kingdom", trial_count: 11, citations: [] },
+          { country: "Japan", trial_count: 8, citations: [] },
           { country: "Germany", trial_count: 7, citations: [] },
           { country: "France", trial_count: 6, citations: [] },
         ],
@@ -111,6 +93,9 @@ export const examples: Example[] = [
   {
     id: "bar_status",
     label: "COVID-19 trials by status",
+    category: "bar",
+    chartType: "Bar Chart",
+    toolCalls: 1,
     request: {
       query: "Show COVID-19 trials broken down by current status.",
       condition: "COVID-19",
@@ -171,6 +156,9 @@ export const examples: Example[] = [
   {
     id: "bar_sponsors",
     label: "Top oncology sponsors",
+    category: "bar",
+    chartType: "Bar Chart",
+    toolCalls: 1,
     request: {
       query: "Which sponsors have the most active recruiting oncology trials?",
       condition: "Neoplasms",
@@ -228,14 +216,17 @@ export const examples: Example[] = [
       },
       meta: baseMeta({ condition: "Neoplasms", status: "RECRUITING" }, 1842, 511),
       warnings: ["Sponsor names are taken from leadSponsor.name and may have minor variations."],
-      assumptions: [
-        "Only lead sponsors are counted; collaborating organizations are excluded.",
-      ],
+      assumptions: ["Only lead sponsors are counted; collaborating organizations are excluded."],
     },
   },
+
+  // ── Comparison (Grouped Bar) ───────────────────────────────────────────────
   {
     id: "grouped",
-    label: "Oncology phase by sponsor class",
+    label: "Oncology phase × sponsor class",
+    category: "comparison",
+    chartType: "Grouped Bar",
+    toolCalls: 1,
     request: {
       query: "Compare Phase 2 and Phase 3 oncology trials by sponsor class.",
       condition: "Neoplasms",
@@ -271,14 +262,7 @@ export const examples: Example[] = [
             phase: "PHASE2",
             sponsor_class: "NIH",
             trial_count: 16,
-            citations: [
-              citation(
-                "NCT04448217",
-                "protocolSection.sponsorCollaboratorsModule.leadSponsor.class",
-                "NIH",
-                "Immunotherapy Combination Study",
-              ),
-            ],
+            citations: [],
           },
           {
             phase: "PHASE3",
@@ -293,19 +277,7 @@ export const examples: Example[] = [
               ),
             ],
           },
-          {
-            phase: "PHASE3",
-            sponsor_class: "NIH",
-            trial_count: 9,
-            citations: [
-              citation(
-                "NCT03964571",
-                "protocolSection.sponsorCollaboratorsModule.leadSponsor.class",
-                "NIH",
-                "NCI-Sponsored Therapy Trial",
-              ),
-            ],
-          },
+          { phase: "PHASE3", sponsor_class: "NIH", trial_count: 9, citations: [] },
         ],
         render_hints: {
           x_axis_label: "Trial phase",
@@ -323,7 +295,10 @@ export const examples: Example[] = [
   },
   {
     id: "grouped_hf",
-    label: "Heart failure trials by phase",
+    label: "Heart failure phase × sponsor",
+    category: "comparison",
+    chartType: "Grouped Bar",
+    toolCalls: 1,
     request: {
       query: "Compare heart failure trial phases between industry and academic sponsors.",
       condition: "Heart Failure",
@@ -396,14 +371,250 @@ export const examples: Example[] = [
       },
       meta: baseMeta({ condition: "Heart Failure" }, 188, 140),
       warnings: [],
+      assumptions: ["Academic, hospital, and government sponsors are grouped under OTHER."],
+    },
+  },
+  {
+    id: "compare_drugs",
+    label: "Pembrolizumab vs Nivolumab",
+    category: "comparison",
+    chartType: "Grouped Bar",
+    toolCalls: 2,
+    request: {
+      query: "Compare Pembrolizumab vs Nivolumab phase distribution.",
+      preferred_visualization: "grouped_bar_chart",
+      max_records: 500,
+      citation_limit: 10,
+    },
+    response: {
+      status: "visualization",
+      request_id: "req_cmp_drugs_001",
+      visualization: {
+        type: "grouped_bar_chart",
+        title: "Pembrolizumab vs Nivolumab — Trial Phase Distribution",
+        description: "Phase distribution for each drug fetched from separate ClinicalTrials.gov queries.",
+        encoding: { x: "phase", y: "trial_count", group: "label" },
+        data: [
+          {
+            phase: "PHASE1",
+            label: "Pembrolizumab",
+            trial_count: 21,
+            citations: [
+              citation(
+                "NCT02129660",
+                "protocolSection.designModule.phases",
+                "PHASE1",
+                "Pembrolizumab Dose-Escalation Study",
+              ),
+            ],
+          },
+          { phase: "PHASE1", label: "Nivolumab", trial_count: 17, citations: [] },
+          {
+            phase: "PHASE2",
+            label: "Pembrolizumab",
+            trial_count: 134,
+            citations: [
+              citation(
+                "NCT02564263",
+                "protocolSection.designModule.phases",
+                "PHASE2",
+                "Pembrolizumab in Advanced Melanoma",
+              ),
+            ],
+          },
+          {
+            phase: "PHASE2",
+            label: "Nivolumab",
+            trial_count: 109,
+            citations: [
+              citation(
+                "NCT01721746",
+                "protocolSection.designModule.phases",
+                "PHASE2",
+                "Nivolumab in Solid Tumors",
+              ),
+            ],
+          },
+          { phase: "PHASE3", label: "Pembrolizumab", trial_count: 92, citations: [] },
+          { phase: "PHASE3", label: "Nivolumab", trial_count: 78, citations: [] },
+          { phase: "PHASE4", label: "Pembrolizumab", trial_count: 14, citations: [] },
+          { phase: "PHASE4", label: "Nivolumab", trial_count: 9, citations: [] },
+          { phase: "NA", label: "Pembrolizumab", trial_count: 63, citations: [] },
+          { phase: "NA", label: "Nivolumab", trial_count: 34, citations: [] },
+        ],
+        render_hints: {
+          x_axis_label: "Phase",
+          y_axis_label: "Trials",
+          group_field: "label",
+          category_field: "phase",
+          value_field: "trial_count",
+          legend: true,
+        },
+      },
+      meta: baseMeta({}, 573, 431),
+      warnings: [],
       assumptions: [
-        "Academic, hospital, and government sponsors are grouped under OTHER.",
+        "Each drug was fetched independently; totals reflect separate API queries.",
+        "Phase NA includes trials with no phase information recorded.",
       ],
     },
   },
   {
+    id: "compare_countries",
+    label: "US vs Germany — oncology",
+    category: "comparison",
+    chartType: "Grouped Bar",
+    toolCalls: 2,
+    request: {
+      query: "Compare oncology trials in the United States vs Germany by phase.",
+      condition: "Neoplasms",
+      preferred_visualization: "grouped_bar_chart",
+      max_records: 400,
+      citation_limit: 10,
+    },
+    response: {
+      status: "visualization",
+      request_id: "req_cmp_geo_001",
+      visualization: {
+        type: "grouped_bar_chart",
+        title: "US vs Germany — Oncology Trial Phase Distribution",
+        description: "Trial counts by phase for each country fetched from separate queries.",
+        encoding: { x: "phase", y: "trial_count", group: "label" },
+        data: [
+          {
+            phase: "PHASE1",
+            label: "United States",
+            trial_count: 58,
+            citations: [
+              citation(
+                "NCT04898634",
+                "protocolSection.contactsLocationsModule.locations",
+                "United States",
+                "Dose Escalation Study — NSCLC",
+              ),
+            ],
+          },
+          {
+            phase: "PHASE1",
+            label: "Germany",
+            trial_count: 22,
+            citations: [
+              citation(
+                "NCT05312723",
+                "protocolSection.contactsLocationsModule.locations",
+                "Germany",
+                "Early-Phase Solid Tumor Trial",
+              ),
+            ],
+          },
+          { phase: "PHASE2", label: "United States", trial_count: 112, citations: [] },
+          { phase: "PHASE2", label: "Germany", trial_count: 41, citations: [] },
+          { phase: "PHASE3", label: "United States", trial_count: 76, citations: [] },
+          { phase: "PHASE3", label: "Germany", trial_count: 38, citations: [] },
+          { phase: "PHASE4", label: "United States", trial_count: 19, citations: [] },
+          { phase: "PHASE4", label: "Germany", trial_count: 11, citations: [] },
+          { phase: "NA", label: "United States", trial_count: 31, citations: [] },
+          { phase: "NA", label: "Germany", trial_count: 14, citations: [] },
+        ],
+        render_hints: {
+          x_axis_label: "Phase",
+          y_axis_label: "Trials",
+          group_field: "label",
+          category_field: "phase",
+          value_field: "trial_count",
+          legend: true,
+        },
+      },
+      meta: baseMeta({ condition: "Neoplasms" }, 422, 422),
+      warnings: [],
+      assumptions: [
+        "Trials without a country listed in their locations module are excluded.",
+        "A trial may appear in both countries if it has sites in each.",
+      ],
+    },
+  },
+  {
+    id: "compare_status",
+    label: "Recruiting vs completed — Alzheimer's",
+    category: "comparison",
+    chartType: "Grouped Bar",
+    toolCalls: 2,
+    request: {
+      query: "Compare recruiting vs completed Alzheimer's trials by phase.",
+      condition: "Alzheimer Disease",
+      preferred_visualization: "grouped_bar_chart",
+      max_records: 400,
+      citation_limit: 10,
+    },
+    response: {
+      status: "visualization",
+      request_id: "req_cmp_status_001",
+      visualization: {
+        type: "grouped_bar_chart",
+        title: "Alzheimer's Trials — Recruiting vs Completed by Phase",
+        description: "Phase breakdown for actively recruiting versus completed Alzheimer's trials.",
+        encoding: { x: "phase", y: "trial_count", group: "label" },
+        data: [
+          {
+            phase: "PHASE1",
+            label: "Recruiting",
+            trial_count: 9,
+            citations: [
+              citation(
+                "NCT05476926",
+                "protocolSection.statusModule.overallStatus",
+                "RECRUITING",
+                "Anti-Tau Antibody Phase 1 Study",
+              ),
+            ],
+          },
+          {
+            phase: "PHASE1",
+            label: "Completed",
+            trial_count: 31,
+            citations: [
+              citation(
+                "NCT01262183",
+                "protocolSection.statusModule.overallStatus",
+                "COMPLETED",
+                "Aducanumab Phase 1b Safety Study",
+              ),
+            ],
+          },
+          { phase: "PHASE2", label: "Recruiting", trial_count: 24, citations: [] },
+          { phase: "PHASE2", label: "Completed", trial_count: 68, citations: [] },
+          { phase: "PHASE3", label: "Recruiting", trial_count: 18, citations: [] },
+          { phase: "PHASE3", label: "Completed", trial_count: 42, citations: [] },
+          { phase: "PHASE4", label: "Recruiting", trial_count: 6, citations: [] },
+          { phase: "PHASE4", label: "Completed", trial_count: 14, citations: [] },
+          { phase: "NA", label: "Recruiting", trial_count: 12, citations: [] },
+          { phase: "NA", label: "Completed", trial_count: 27, citations: [] },
+        ],
+        render_hints: {
+          x_axis_label: "Phase",
+          y_axis_label: "Trials",
+          group_field: "label",
+          category_field: "phase",
+          value_field: "trial_count",
+          legend: true,
+        },
+      },
+      meta: baseMeta({ condition: "Alzheimer Disease" }, 251, 251),
+      warnings: [],
+      assumptions: [
+        "Each status was fetched independently from ClinicalTrials.gov.",
+        "Phase NA includes trials with no phase designation.",
+      ],
+    },
+  },
+
+  // ── Time Series ───────────────────────────────────────────────────────────
+  {
     id: "line",
     label: "Diabetes enrollment trend",
+    category: "time",
+    chartType: "Line Chart",
+    toolCalls: 1,
     request: {
       query: "Show median enrollment for completed diabetes trials by year.",
       condition: "Diabetes Mellitus",
@@ -463,6 +674,9 @@ export const examples: Example[] = [
   {
     id: "time",
     label: "Pembrolizumab trial starts",
+    category: "time",
+    chartType: "Time Series",
+    toolCalls: 1,
     request: {
       query: "How many Pembrolizumab trials started each year since 2015?",
       drug_name: "Pembrolizumab",
@@ -522,7 +736,10 @@ export const examples: Example[] = [
   },
   {
     id: "time_covid",
-    label: "COVID trial registrations 2020–2024",
+    label: "COVID registrations 2020–2024",
+    category: "time",
+    chartType: "Time Series",
+    toolCalls: 1,
     request: {
       query: "How did new COVID-19 trial registrations change between 2020 and 2024?",
       condition: "COVID-19",
@@ -571,7 +788,7 @@ export const examples: Example[] = [
         ],
         render_hints: {
           x_axis_label: "Year",
-          y_axis_label: "New trial registrations",
+          y_axis_label: "New registrations",
           series_name: "New registrations",
           sort: "chronological",
         },
@@ -583,9 +800,14 @@ export const examples: Example[] = [
       ],
     },
   },
+
+  // ── Networks ──────────────────────────────────────────────────────────────
   {
     id: "network",
     label: "Immunotherapy sponsor network",
+    category: "network",
+    chartType: "Network",
+    toolCalls: 1,
     request: {
       query: "Map sponsors connected to immunotherapy conditions.",
       condition: "Immunotherapy",
@@ -636,21 +858,9 @@ export const examples: Example[] = [
           ],
           edges: [
             { source: "merck", target: "pembro", weight: 24, relation: "sponsors", citations: [] },
-            {
-              source: "pembro",
-              target: "melanoma",
-              weight: 12,
-              relation: "studies",
-              citations: [],
-            },
+            { source: "pembro", target: "melanoma", weight: 12, relation: "studies", citations: [] },
             { source: "pembro", target: "lung", weight: 18, relation: "studies", citations: [] },
-            {
-              source: "bristol",
-              target: "melanoma",
-              weight: 9,
-              relation: "studies",
-              citations: [],
-            },
+            { source: "bristol", target: "melanoma", weight: 9, relation: "studies", citations: [] },
           ],
         },
         render_hints: { series_name: "Study relationships", legend: true },
@@ -663,6 +873,9 @@ export const examples: Example[] = [
   {
     id: "network_glp1",
     label: "GLP-1 drug co-occurrence network",
+    category: "network",
+    chartType: "Network",
+    toolCalls: 1,
     request: {
       query: "Show how GLP-1 drugs like semaglutide and tirzepatide connect to conditions.",
       condition: "Obesity",
@@ -745,31 +958,13 @@ export const examples: Example[] = [
           edges: [
             { source: "novo", target: "sema", weight: 38, relation: "sponsors", citations: [] },
             { source: "lilly", target: "tirze", weight: 22, relation: "sponsors", citations: [] },
-            {
-              source: "novo",
-              target: "liraglu",
-              weight: 14,
-              relation: "sponsors",
-              citations: [],
-            },
+            { source: "novo", target: "liraglu", weight: 14, relation: "sponsors", citations: [] },
             { source: "sema", target: "obesity", weight: 28, relation: "studies", citations: [] },
             { source: "sema", target: "t2dm", weight: 22, relation: "studies", citations: [] },
             { source: "tirze", target: "t2dm", weight: 18, relation: "studies", citations: [] },
-            {
-              source: "tirze",
-              target: "obesity",
-              weight: 14,
-              relation: "studies",
-              citations: [],
-            },
+            { source: "tirze", target: "obesity", weight: 14, relation: "studies", citations: [] },
             { source: "sema", target: "nash", weight: 8, relation: "studies", citations: [] },
-            {
-              source: "liraglu",
-              target: "t2dm",
-              weight: 14,
-              relation: "studies",
-              citations: [],
-            },
+            { source: "liraglu", target: "t2dm", weight: 14, relation: "studies", citations: [] },
           ],
         },
         render_hints: { series_name: "Co-occurrence", legend: true },
@@ -781,9 +976,14 @@ export const examples: Example[] = [
       ],
     },
   },
+
+  // ── Advanced ──────────────────────────────────────────────────────────────
   {
     id: "scatter",
     label: "Oncology trial complexity by year",
+    category: "advanced",
+    chartType: "Scatter",
+    toolCalls: 1,
     request: {
       query: "Show how oncology trial intervention counts changed by start year.",
       condition: "Neoplasms",
@@ -849,6 +1049,9 @@ export const examples: Example[] = [
   {
     id: "histogram",
     label: "COVID-19 trial year distribution",
+    category: "advanced",
+    chartType: "Histogram",
+    toolCalls: 1,
     request: {
       query: "Show the distribution of COVID-19 trial registrations across year ranges.",
       condition: "COVID-19",
@@ -880,8 +1083,20 @@ export const examples: Example[] = [
               ),
             ],
           },
-          { range_label: "2021–2022", min_year: 2021, max_year: 2022, trial_count: 1433, citations: [] },
-          { range_label: "2023–2024", min_year: 2023, max_year: 2024, trial_count: 522, citations: [] },
+          {
+            range_label: "2021–2022",
+            min_year: 2021,
+            max_year: 2022,
+            trial_count: 1433,
+            citations: [],
+          },
+          {
+            range_label: "2023–2024",
+            min_year: 2023,
+            max_year: 2024,
+            trial_count: 522,
+            citations: [],
+          },
         ],
         render_hints: {
           x_axis_label: "Year range",
@@ -897,9 +1112,14 @@ export const examples: Example[] = [
       ],
     },
   },
+
+  // ── System ────────────────────────────────────────────────────────────────
   {
     id: "message",
-    label: "Out of scope query",
+    label: "Out-of-scope query",
+    category: "system",
+    chartType: "Message",
+    toolCalls: 0,
     request: {
       query: "What is the best recipe for chocolate chip cookies?",
       preferred_visualization: "bar_chart",
@@ -916,6 +1136,32 @@ export const examples: Example[] = [
         "Show trials for semaglutide by phase",
         "How many Alzheimer's trials are active in the US?",
         "Top sponsors for oncology trials",
+      ],
+      meta: null,
+    },
+  },
+  {
+    id: "insufficient",
+    label: "Insufficient data response",
+    category: "system",
+    chartType: "Message",
+    toolCalls: 1,
+    request: {
+      query: "Find active trials for a brand-new experimental intervention with no registered studies.",
+      preferred_visualization: "bar_chart",
+      max_records: 500,
+      citation_limit: 10,
+    },
+    response: {
+      status: "message",
+      request_id: "req_msg_002",
+      message:
+        "Not enough trial data was found to generate a meaningful visualization. The query returned fewer than 3 usable records after filtering. Try broadening your search — remove specific status or phase filters, or use a wider date range.",
+      reason: "insufficient_data",
+      suggested_queries: [
+        "Show all oncology trials by phase",
+        "Alzheimer's trials recruiting in the US",
+        "COVID-19 trial registrations by year",
       ],
       meta: null,
     },

@@ -1,0 +1,258 @@
+.viz-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  min-height: 0;
+}
+
+/* ── States ───────────────────────────────────────────────────────────────── */
+.viz-panel--loading,
+.viz-panel--empty {
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+  gap: 12px;
+}
+
+.viz-panel--empty p {
+  max-width: 400px;
+  text-align: center;
+  color: var(--text-2);
+}
+
+.viz-panel--empty strong {
+  color: var(--text-1);
+}
+
+.viz-loader {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: viz-spin 0.75s linear infinite;
+}
+
+.viz-loader-label {
+  font-size: 0.8rem;
+  color: var(--text-3);
+}
+
+@keyframes viz-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Message ──────────────────────────────────────────────────────────────── */
+.viz-panel--message {
+  min-height: 240px;
+  justify-content: center;
+}
+
+.viz-message-body {
+  max-width: 520px;
+  width: 100%;
+}
+
+.viz-message-body h2 {
+  color: var(--text-1);
+}
+
+.viz-message-body dl {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.viz-message-body dl div {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.viz-message-body dl dt {
+  min-width: 80px;
+  color: var(--text-3);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.viz-message-body dl dd {
+  font-size: 0.82rem;
+  color: var(--text-2);
+  margin: 0;
+  font-family: monospace;
+}
+
+.viz-message-body ul {
+  padding-left: 16px;
+  margin: 4px 0 0;
+  display: grid;
+  gap: 4px;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.viz-header {
+  margin-bottom: 8px;
+}
+
+.viz-header h2 {
+  margin-bottom: 2px;
+}
+
+.viz-header p {
+  margin-bottom: 0;
+  color: var(--text-2);
+  font-size: 0.82rem;
+}
+
+/* ── Chart ────────────────────────────────────────────────────────────────── */
+.viz-chart {
+  width: 100%;
+  height: 300px;
+}
+
+.viz-chart--network {
+  height: 480px;
+}
+
+/* ── Citations ────────────────────────────────────────────────────────────── */
+.viz-citations {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.viz-citations h3 {
+  margin-bottom: 8px;
+}
+
+.viz-citations ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0 4px 0 0;
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.citation-item {
+  padding: 8px 10px;
+  background: color-mix(in srgb, var(--border) 30%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: grid;
+  gap: 4px;
+}
+
+.citation-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.citation-nct {
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: monospace;
+  color: #3b82f6;
+  background: color-mix(in srgb, #3b82f6 12%, transparent);
+  border: 1px solid color-mix(in srgb, #3b82f6 28%, transparent);
+  border-radius: 4px;
+  padding: 1px 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.citation-title {
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.citation-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.citation-field {
+  font-size: 0.7rem;
+  font-family: monospace;
+  opacity: 0.65;
+}
+
+.citation-value {
+  font-size: 0.74rem;
+  opacity: 0.7;
+}
+
+/* ── Metadata footer ──────────────────────────────────────────────────────── */
+.viz-meta {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 5px;
+}
+
+.viz-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 0.74rem;
+  color: var(--text-3);
+}
+
+.viz-meta-source {
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.viz-meta-sep {
+  color: var(--border);
+}
+
+.viz-notice {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.viz-notice li {
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--text-3);
+  padding-left: 14px;
+  position: relative;
+}
+
+.viz-notice--warning li::before {
+  content: "⚠";
+  position: absolute;
+  left: 0;
+  font-size: 0.62rem;
+  top: 1px;
+}
+
+.viz-notice--assumption li::before {
+  content: "ℹ";
+  position: absolute;
+  left: 0;
+  font-size: 0.62rem;
+  top: 1px;
+}

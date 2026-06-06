@@ -2,7 +2,7 @@ import type { VisualizationApiResponse } from "../types";
 import "../styles/components/MetadataPanel.css";
 
 type MetadataPanelProps = {
-  response: VisualizationApiResponse;
+  response: VisualizationApiResponse | null;
   loading?: boolean;
 };
 
@@ -13,6 +13,10 @@ export function MetadataPanel({ response, loading }: MetadataPanelProps) {
         <div className="metadata-loader" role="status" aria-label="Loading metadata" />
       </section>
     );
+  }
+
+  if (!response) {
+    return <section className="metadata-panel" />;
   }
 
   if (response.status === "message") {

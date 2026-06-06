@@ -115,6 +115,38 @@ _EXAMPLES: list[dict[str, Any]] = [
         },
     },
     {
+        "id": "compare_drugs",
+        "label": "Drug comparison: Pembrolizumab vs Nivolumab",
+        "request": {
+            "query": "Compare Pembrolizumab vs Nivolumab phase distribution.",
+            "preferred_visualization": "grouped_bar_chart",
+            "max_records": 500,
+            "citation_limit": 10,
+        },
+    },
+    {
+        "id": "compare_countries",
+        "label": "Geographic comparison: US vs Germany oncology",
+        "request": {
+            "query": "Compare oncology trials in the United States vs Germany by phase.",
+            "condition": "Neoplasms",
+            "preferred_visualization": "grouped_bar_chart",
+            "max_records": 400,
+            "citation_limit": 10,
+        },
+    },
+    {
+        "id": "compare_status",
+        "label": "Status comparison: recruiting vs completed Alzheimer's",
+        "request": {
+            "query": "Compare recruiting vs completed Alzheimer's trials by phase.",
+            "condition": "Alzheimer Disease",
+            "preferred_visualization": "grouped_bar_chart",
+            "max_records": 400,
+            "citation_limit": 10,
+        },
+    },
+    {
         "id": "message",
         "label": "Insufficient data example",
         "request": {

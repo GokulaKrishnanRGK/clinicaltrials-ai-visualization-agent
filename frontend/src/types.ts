@@ -118,9 +118,14 @@ export type VisualizationRequest = {
   citation_limit: number;
 };
 
+export type ExampleCategory = "bar" | "comparison" | "time" | "network" | "advanced" | "system";
+
 export type Example = {
   id: string;
   label: string;
+  category: ExampleCategory;
+  chartType: string;
+  toolCalls: number;
   request: VisualizationRequest;
   response: VisualizationApiResponse;
 };

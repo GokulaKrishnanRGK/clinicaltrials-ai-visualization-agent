@@ -112,23 +112,3 @@ async def interpret_question(state: GraphState) -> dict[str, Any]:
         }
 
 
-def create_retrieval_plan(state: GraphState) -> dict[str, Any]:
-    rid = state["request_id"]
-    intent = state.get("interpreted") or intent_from_state(state)
-    logger.debug(
-        "create_retrieval_plan input request_id=%s intent=%s",
-        rid,
-        {k: v for k, v in intent.items() if v is not None},
-    )
-    params: dict[str, Any] = {
-        "query": state["query"],
-        "max_records": state["max_records"],
-    }
-    for key in ("drug_name", "drug_name_2", "condition", "trial_phase", "sponsor", "country", "status"):
-        if intent.get(key):
-            params[key] = intent[key]
-    for key in ("start_year", "end_year"):
-        if intent.get(key) is not None:
-            params[key] = intent[key]
-    logger.debug("create_retrieval_plan request_id=%s params=%s", rid, params)
-    return {"retrieval_params": params}

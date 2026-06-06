@@ -6,21 +6,22 @@
   width: min(1440px, 100%);
   margin: 0 auto;
   display: grid;
-  grid-template-rows: auto 1fr auto;
   gap: 10px;
 }
 
 .content-grid {
   display: grid;
-  grid-template-columns: 220px 1fr 268px;
+  grid-template-columns: 280px 1fr;
   gap: 10px;
-  align-items: start;
+  align-items: stretch;
 }
 
+/* Left column is a flex column so ExamplesPanel can fill the remaining height */
 .left-col {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
-  align-content: start;
+  min-height: 0;
 }
 
 .json-grid {
@@ -31,7 +32,7 @@
 
 @media (max-width: 1100px) {
   .content-grid {
-    grid-template-columns: 200px 1fr 240px;
+    grid-template-columns: 260px 1fr;
   }
 }
 

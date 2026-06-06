@@ -5,8 +5,9 @@ from app.graph.nodes.edges import (
     route_after_assess,
     route_after_interpret,
 )
-from app.graph.nodes.execute import execute_tools
-from app.graph.nodes.interpret import create_retrieval_plan, interpret_question
+from app.graph.nodes.execute import execute_tool_calls
+from app.graph.nodes.interpret import interpret_question
+from app.graph.nodes.plan import plan_tool_calls
 from app.graph.nodes.validate import message_insufficient, validate_response
 from app.graph.nodes.visualize import generate_visualization_spec
 
@@ -15,8 +16,8 @@ __all__ = [
     "route_after_interpret",
     "route_after_assess",
     "interpret_question",
-    "create_retrieval_plan",
-    "execute_tools",
+    "plan_tool_calls",
+    "execute_tool_calls",
     "assess_data_sufficiency",
     "repair_plan",
     "aggregate_data",

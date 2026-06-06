@@ -6,7 +6,7 @@ import "../styles/components/ChartSurface.css";
 import type { VisualizationApiResponse } from "../types";
 
 type ChartSurfaceProps = {
-  response: VisualizationApiResponse;
+  response: VisualizationApiResponse | null;
   citationLimit: number;
   loading?: boolean;
 };
@@ -16,6 +16,14 @@ export function ChartSurface({ response, citationLimit, loading }: ChartSurfaceP
     return (
       <section className="chart-panel chart-panel--loading" aria-busy aria-live="polite">
         <div className="chart-loader" role="status" aria-label="Loading visualization" />
+      </section>
+    );
+  }
+
+  if (!response) {
+    return (
+      <section className="chart-empty" aria-live="polite">
+        <p>Select an example and click <strong>Submit</strong> to fetch live data.</p>
       </section>
     );
   }

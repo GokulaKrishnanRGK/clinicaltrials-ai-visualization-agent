@@ -3,11 +3,11 @@ from langgraph.graph import END, START, StateGraph
 from app.graph.nodes import (
     aggregate_data,
     assess_data_sufficiency,
-    create_retrieval_plan,
-    execute_tools,
+    execute_tool_calls,
     generate_visualization_spec,
     interpret_question,
     message_insufficient,
+    plan_tool_calls,
     repair_plan,
     route_after_assess,
     route_after_interpret,
@@ -20,8 +20,8 @@ def build_pipeline():
     graph = StateGraph(GraphState)
 
     graph.add_node("interpret_question", interpret_question)
-    graph.add_node("create_retrieval_plan", create_retrieval_plan)
-    graph.add_node("execute_tools", execute_tools)
+    graph.add_node("plan_tool_calls", plan_tool_calls)
+    graph.add_node("execute_tool_calls", execute_tool_calls)
     graph.add_node("assess_data_sufficiency", assess_data_sufficiency)
     graph.add_node("repair_plan", repair_plan)
     graph.add_node("aggregate_data", aggregate_data)
@@ -34,10 +34,10 @@ def build_pipeline():
     graph.add_conditional_edges(
         "interpret_question",
         route_after_interpret,
-        {"end": END, "continue": "create_retrieval_plan"},
+        {"end": END, "continue": "plan_tool_calls"},
     )
-    graph.add_edge("create_retrieval_plan", "execute_tools")
-    graph.add_edge("execute_tools", "assess_data_sufficiency")
+    graph.add_edge("plan_tool_calls", "execute_tool_calls")
+    graph.add_edge("execute_tool_calls", "assess_data_sufficiency")
 
     graph.add_conditional_edges(
         "assess_data_sufficiency",
@@ -50,7 +50,7 @@ def build_pipeline():
         },
     )
 
-    graph.add_edge("repair_plan", "execute_tools")
+    graph.add_edge("repair_plan", "execute_tool_calls")
     graph.add_edge("aggregate_data", "generate_visualization_spec")
     graph.add_edge("generate_visualization_spec", "validate_response")
     graph.add_edge("validate_response", END)

@@ -1,16 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
-import { useGetExamplesQuery } from "./store/clinicalTrialsApi";
 import { useVisualizationStream } from "./api/useVisualizationStream";
-import { ChartSurface } from "./components/ChartSurface";
 import { ControlsPanel } from "./components/ControlsPanel";
 import { DashboardHeader } from "./components/DashboardHeader";
+import { ExamplesPanel } from "./components/ExamplesPanel";
 import { JsonPanel } from "./components/JsonPanel";
-import { MetadataPanel } from "./components/MetadataPanel";
 import { NodeTimeline } from "./components/NodeTimeline";
+import { VisualizationPanel } from "./components/VisualizationPanel";
 import { examples as localExamples } from "./data/contractExamples";
 import "./styles/app.css";
-import type { VisualizationRequest } from "./types";
+import type { Example, VisualizationApiResponse, VisualizationRequest } from "./types";
 
 type Theme = "dark" | "light";
 
@@ -21,15 +20,12 @@ export function App() {
   const [query, setQuery] = useState(localExamples[0].request.query);
   const [citationLimit, setCitationLimit] = useState(localExamples[0].request.citation_limit);
   const [maxRecords, setMaxRecords] = useState(localExamples[0].request.max_records);
+  const [previewResponse, setPreviewResponse] = useState<VisualizationApiResponse | null>(
+    localExamples[0].response,
+  );
 
-  const { data: remoteExamples } = useGetExamplesQuery();
   const stream = useVisualizationStream();
 
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
-  const pickerExamples = remoteExamples ?? localExamples;
   const selectedLocal = localExamples.find((e) => e.id === selectedId) ?? localExamples[0];
 
   const request = useMemo<VisualizationRequest>(
@@ -42,20 +38,23 @@ export function App() {
     [citationLimit, maxRecords, query, selectedLocal.request],
   );
 
-  const exampleResponse = selectedLocal.response;
+  const handleSelectExample = (example: Example, mode: "cache" | "live") => {
+    setSelectedId(example.id);
+    setQuery(example.request.query);
+    setCitationLimit(example.request.citation_limit);
+    setMaxRecords(example.request.max_records);
+    stream.reset();
+    setPreviewResponse(mode === "cache" ? example.response : null);
+  };
+
+  const handleThemeToggle = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+  };
 
   const loading = stream.streaming && stream.finalResponse === null;
-  const response = stream.finalResponse ?? exampleResponse;
-  const showTimeline = stream.streaming || stream.nodes.length > 0;
-
-  const selectExample = (exampleId: string) => {
-    const next = localExamples.find((e) => e.id === exampleId) ?? localExamples[0];
-    setSelectedId(next.id);
-    setQuery(next.request.query);
-    setCitationLimit(next.request.citation_limit);
-    setMaxRecords(next.request.max_records);
-    stream.reset();
-  };
+  const response = stream.finalResponse ?? previewResponse;
 
   return (
     <main className="app-shell">
@@ -63,35 +62,41 @@ export function App() {
         <DashboardHeader
           theme={theme}
           showJson={showJson}
-          onThemeToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+          onThemeToggle={handleThemeToggle}
           onJsonToggle={() => setShowJson((v) => !v)}
         />
 
         <div className="content-grid">
           <div className="left-col">
             <ControlsPanel
-              examples={pickerExamples}
-              selectedId={selectedId}
               query={query}
               citationLimit={citationLimit}
               maxRecords={maxRecords}
               isSubmitting={stream.streaming}
-              onExampleChange={selectExample}
               onQueryChange={setQuery}
               onCitationLimitChange={setCitationLimit}
               onMaxRecordsChange={setMaxRecords}
               onSubmit={() => stream.submit(request)}
             />
-            {showTimeline && (
+            {(stream.streaming || stream.nodes.length > 0) && (
               <NodeTimeline
                 nodes={stream.nodes}
                 streaming={stream.streaming}
                 error={stream.error}
               />
             )}
+            <ExamplesPanel
+              examples={localExamples}
+              selectedId={selectedId}
+              onSelect={handleSelectExample}
+            />
           </div>
-          <ChartSurface response={response} citationLimit={citationLimit} loading={loading} />
-          <MetadataPanel response={response} loading={loading} />
+
+          <VisualizationPanel
+            response={response}
+            citationLimit={citationLimit}
+            loading={loading}
+          />
         </div>
 
         {showJson && (

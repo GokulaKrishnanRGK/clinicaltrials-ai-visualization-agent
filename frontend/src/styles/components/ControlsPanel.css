@@ -13,11 +13,18 @@
   gap: 5px;
 }
 
+.controls-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
 .submit-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 32px;
+  width: 100%;
+  height: 34px;
   padding: 0 14px;
   color: #fff;
   background: var(--accent);
