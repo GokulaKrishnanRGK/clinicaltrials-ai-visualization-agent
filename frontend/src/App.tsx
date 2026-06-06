@@ -7,7 +7,7 @@ import { JsonPanel } from "./components/JsonPanel";
 import { MetadataPanel } from "./components/MetadataPanel";
 import { responseWithMode } from "./contractUtils";
 import { examples } from "./data/contractExamples";
-import "./styles/components/App.css";
+import "./styles/app.css";
 import type { VisualizationRequest } from "./types";
 
 export function App() {
